@@ -54,6 +54,15 @@ uv init
 uv add fastmcp
 ```
 
+デバッグは MCP Inspector を使う。
+
+- [MCP Inspector](https://github.com/modelcontextprotocol/inspector)
+
+```bash
+cd servers
+npx @modelcontextprotocol/inspector uv run fastmcp run main.py:mcp
+```
+
 ### FastMCP Docs の構築
 
 まずは本家のコード(ドキュメント)を clone します。
@@ -110,5 +119,7 @@ pnpm run dev
 ## Run
 
 ```bash
-uv run fastmcp run servers/main.py:mcp --transport http --port 8000
+cd servers
+uv run fastmcp run main.py:mcp
+uv run fastmcp run main.py:mcp --transport http --port 8000
 ```
