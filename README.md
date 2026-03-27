@@ -44,13 +44,14 @@ MCP 導入におけるメリットの1つが、エージェント別に使いま
 
 ### python 環境の構築
 
+現時点での最新版である python 3.14 を利用しました。
+
 ```bash
+cd servers
 # 初期化
 uv init
-# venv の作成
-uv venv --python 3.14
 # パッケージのインストール
-uv sync
+uv add fastmcp
 ```
 
 ### FastMCP Docs の構築
