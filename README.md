@@ -9,15 +9,16 @@ MCP 導入におけるメリットの1つが、エージェント別に使いま
 
 ### UI
 
-- 「○○の更新対象はある？」
+- 「更新対象はある？」
     - 更新対象があればリスト表示
 - リストに並んだドキュメントの翻訳ボタンを押す
     - 翻訳結果をUIに表示
+- 直接URL(ローカル)を入力
+    - 対象のファイルを見つけて、翻訳を開始。
 - 保存ボタンを押す
     - 翻訳内容を所定の場所へ保存する。 
 
-今回は LlamaIndex だけ対応。  
-そのうち他のやつもやるかも？
+
 
 ### ザックリ設計
 
@@ -27,6 +28,7 @@ MCP 導入におけるメリットの1つが、エージェント別に使いま
     - 構造化データで返す。
     - 保存先も決めておく。
     - リソースのURLを含めても良い。
+    - 
 - ドキュメントを返すリソース
     - URL を指定することで、ドキュメントを返せるようなURL設計をする。
 - 翻訳ツール
@@ -51,7 +53,9 @@ cd servers
 # 初期化
 uv init
 # パッケージのインストール
-uv add fastmcp
+uv add fastmcp \
+  aiofiles \
+  pydantic
 ```
 
 デバッグは MCP Inspector を使う。
@@ -60,7 +64,7 @@ uv add fastmcp
 
 ```bash
 cd servers
-npx @modelcontextprotocol/inspector uv run fastmcp run main.py:mcp
+npx @modelcontextprotocol/inspector uv run fastmcp run starter.py:mcp
 ```
 
 ### FastMCP Docs の構築
