@@ -8,11 +8,11 @@ from fastmcp.resources import (
     ResourceContent,
     ResourceResult,
 )
-from pathlib import Path
 from ojisan.configs import (
     get_config,
     RootConfig
 )
+from ojisan.utils import DocsHelper
 
 def register_original_resource(mcp: FastMCP):
     """
@@ -34,14 +34,8 @@ def register_original_resource(mcp: FastMCP):
         """
         オリジナル版のドキュメント情報を検索して返す。
         """
-        file_path: Path | None = None
         # 拡張子を付けてファイルを探す。
-        for ext in config.docs.ext:
-            _path = (config.docs.original / f"{path.strip('/')}.{ext}").resolve()
-            await context.debug(f"Searching original resource: {_path}")
-            if _path.exists():
-                file_path = _path
-                break
+        file_path = DocsHelper.get_docs_path(config.docs.original, path, config.docs.ext)
 
         # ファイルが見つからない
         if file_path is None:

@@ -55,6 +55,7 @@ uv init
 # パッケージのインストール
 uv add fastmcp \
   aiofiles \
+  GitPython \
   pydantic
 ```
 
