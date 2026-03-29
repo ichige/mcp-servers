@@ -1,0 +1,1 @@
+from .fileinfo import DocumentFileInfo
