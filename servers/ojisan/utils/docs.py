@@ -1,5 +1,5 @@
+import aiofiles
 import logging
-from fastmcp.dependencies import CurrentContext
 from pathlib import Path
 from typing import Annotated
 
@@ -19,7 +19,6 @@ class DocsHelper:
         指定された条件で拡張子を持つファイルを1つ見つけて返す。
         存在しない場合は None を返す。
         """
-        ctx = CurrentContext()
         # 拡張子を付けてファイルを探す。
         for item in ext:
             _path = (base_path / f"{path.strip('/')}.{item}").resolve()
@@ -28,3 +27,35 @@ class DocsHelper:
                 return _path
 
         return None
+
+    @staticmethod
+    def create_docs_path(
+        base_path: Annotated[Path, "ドキュメントが配置されているベースのパス"],
+        path: Annotated[str, "ドキュメントのファイル名となるパス名"],
+        ext: Annotated[str, "拡張子"] = "mdx"
+    ) -> Path | None:
+        """
+        指定された条件でパスを生成する。
+        生成したパスがベースパスに含まれない場合は None を返す。
+        """
+        _path = (base_path / f"{path.strip('/')}.{ext}").resolve()
+        if _path.is_relative_to(base_path):
+            return _path
+
+        return None
+
+    @staticmethod
+    async def save_docs(path: Path, content: str) -> bool:
+        """
+        指定されたファイルパスに非同期でデータを保存する
+        """
+        try:
+            # ディレクトリを作ってから保存を試みる。
+            path.parent.mkdir(parents=True, exist_ok=True)
+            async with aiofiles.open(path, "w") as f:
+                await f.write(content)
+        except Exception as e:
+            logger.error(f"Failed to save docs: {e}")
+            return False
+
+        return True
