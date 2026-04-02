@@ -6,8 +6,11 @@ def sent_message():
     """
     発信メッセージの表示
     """
-    ui.chat_message(
-        text=chat_messages.sent,
+    with ui.chat_message(
         name="Obasan",
         avatar="https://robohash.org/obasan?set=set3",
-    ).props("sent")
+    ).props("sent"):
+        ui.label().bind_text(
+            target_object=chat_messages,
+            target_name="sent",
+        )
