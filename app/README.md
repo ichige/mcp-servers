@@ -6,11 +6,19 @@
 
 ```bash
 cd app
+# uv update
+uv self update
 # 初期化
 uv init
 # パッケージのインストール
 uv add nicegui \
-  pydantic
+  pydantic \
+  llama-index \
+  llama-index-llms-google-genai \
+  fastmcp
+# パッケージの更新
+uv pip list --outdated
+uv sync --upgrade
 ```
 
 ```bash

@@ -10,7 +10,8 @@ from obasan.components import (
     reply_message,
     sent_message,
     server_notification,
-    markdown_content
+    markdown_content,
+    input_url_component
 )
 from obasan.stores import phase
 
@@ -28,17 +29,8 @@ def register_root_page():
                 # w-full を指定しないと幅が狭まる
                 with ui.card_section().classes("w-full"):
                     # URL Input
-                    input_url = ui.input(
-                        label="URL",
-                        placeholder="https://gofastmcp.com/getting-started/welcome"
-                    ).props("clearable outlined dense hint=FastMCPのURLを入力").classes("")
-                    # icon
-                    with input_url.add_slot('before'):
-                        ui.icon(
-                            name='sym_o_search',
-                            size='xs',
-                            color='accent'
-                        )
+                    input_url_component()
+
                 ui.separator()
                 # Actions w-full を指定しないと幅が狭まる
                 with ui.card_actions().props("align=right").classes("w-full"):

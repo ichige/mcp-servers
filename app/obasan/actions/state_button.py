@@ -1,9 +1,10 @@
 from nicegui import ui
 from obasan.stores import (
     chat_messages,
+    input_url,
     phase
 )
-from ._stab import do_information
+from obasan.workflows.inspection import InspectionWorkflow
 
 def state_button():
     """
@@ -13,9 +14,10 @@ def state_button():
         phase.update("start")
         await chat_messages.sent_message_stream("ファイルの状態を教えてくれ!")
         await chat_messages.reply_message_stream("かしこまりました。少々お待ちください…。")
-        phase.update("pending")
-        # TODO: 翻訳なり
-        await do_information()
+
+        workflow = InspectionWorkflow()
+        response = await workflow.run(url=input_url.url)
+        print(f"json: {response}")
 
     ui.button(
         text="状態",
