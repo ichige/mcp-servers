@@ -7,7 +7,7 @@ def server_notification():
     """
     # server status
     server_status = ui.input().props("readonly disable dense")
-    server_status.bind_value(
+    server_status.bind_value_from(
         target_object=phase,
         target_name="state_message",
     )
@@ -16,7 +16,7 @@ def server_notification():
             type='dots',
             size='xs',
             color='accent'
-        ).bind_visibility(
+        ).bind_visibility_from(
             target_object=phase,
             target_name="is_pending",
         )

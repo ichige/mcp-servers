@@ -1,7 +1,7 @@
 from llama_index.core.agent.workflow import FunctionAgent, AgentOutput
-from .llms import flash_lite_model
-from .structures import UrlValidateOutput
-from .mcp_client import get_client, GetPromptResult
+from obasan.workflows.llms import flash_lite_model
+from obasan.workflows.structures import UrlValidateOutput
+from obasan.workflows.mcp_client import get_prompt
 
 def validator_agent() -> FunctionAgent:
     """
@@ -23,11 +23,7 @@ async def valid_url_run(url: str) -> UrlValidateOutput:
     URL検証の実行
     """
     # prompt を MCPサーバから取得
-    user_msg = ""
-    async with get_client() as client:
-        prompts: GetPromptResult = await client.get_prompt("url_validator_prompt", {"url": url})
-        for message in prompts.messages:
-            user_msg = getattr(message.content, "text", "")
+    user_msg = await get_prompt("url_validator_prompt", {"url": url})
 
     # URL検証実行
     workflow = validator_agent()
@@ -38,4 +34,4 @@ async def valid_url_run(url: str) -> UrlValidateOutput:
         return output
     else:
         # LLM の精度次第で、構造化されずに返ってくる場合がある。
-        raise ValueError(f"Failed to parse output: {response}")
+        raise ValueError(f"Failed to parse output by valid url: {response}")

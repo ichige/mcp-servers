@@ -15,6 +15,7 @@ uv add nicegui \
   pydantic \
   llama-index \
   llama-index-llms-google-genai \
+  llama-index-tools-mcp \
   fastmcp
 # パッケージの更新
 uv pip list --outdated

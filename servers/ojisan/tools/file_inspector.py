@@ -15,24 +15,23 @@ from ojisan.utils import (
     GitHelper
 )
 
-def register_fileinfo_tool(mcp: FastMCP):
+def register_file_inspector_tool(mcp: FastMCP):
     """
     fileinfo tool を登録します。
     """
     @mcp.tool(
-        name="Fileinfo",
+        name="FileInspector",
         tags={"documentation"},
         timeout=10.0,
         version="1.0.0"
     )
-    async def fileinfo(
-        path: Annotated[str, Field(description="The path segment of the tool identifier (e.g., 'servers/tools'). Do not provide the full URL; include only the portion after the base domain.")],
+    async def file_inspector(
+        path: Annotated[str, Field(description="FastMCPのドキュメントファイルの識別子となる PATH。例) /path/to/file")],
         context: Context,
         config: RootConfig = Depends(get_config)
     ) -> DocumentFileInfo:
         """
-        Get metadata (size, last modified time, status) for a document file by its relative path.
-        Checks both original and translated versions if applicable.
+        指定されたPATHに関連するFastMCPのドキュメントファイルのメタデータ(更新日時やサイズなど)を取得できます。
         """
         # 拡張子を付けてファイルを探す。
         original_path = DocsHelper.get_docs_path(config.docs.original, path, config.docs.ext)
