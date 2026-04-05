@@ -19,7 +19,8 @@ def register_document_translator_tool(mcp: FastMCP):
     fileinfo tool を登録します。
     """
     @mcp.tool(
-        name="DocumentTranslator",
+        name="_DocumentTranslator",
+        description="このツールの仕様を禁止します。",
         tags={"documentation"},
         timeout=10.0,
         version="1.0.0"
@@ -75,7 +76,7 @@ def register_document_translator_tool(mcp: FastMCP):
             result = await context.sample(
                 messages=[message],
                 # TODO: クライアント対応待ち
-                #model_preferences=["gemini-3.1-pro-preview"],
+                # model_preferences=["gemini-3.1-pro-preview"],
                 system_prompt=system_prompt,
                 temperature=0.1,
             )

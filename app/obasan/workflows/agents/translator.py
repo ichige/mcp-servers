@@ -2,12 +2,14 @@ from llama_index.core.agent.workflow import FunctionAgent, AgentOutput
 from obasan.workflows.llms import flash_lite_model
 from obasan.workflows.mcp_client import get_prompt, get_tools
 from obasan.workflows.structures import MarkdownOutput
+from obasan.workflows.tools import document_translator_tool_spec
 
 async def translator_agent() -> FunctionAgent:
     """
     PATHに関連するドキュメントの翻訳を行うエージェント
     """
     tools = await get_tools()
+    tools.append(document_translator_tool_spec())
     workflow = FunctionAgent(
         tools=tools,
         name="Translator",

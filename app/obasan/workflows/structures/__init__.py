@@ -1,2 +1,3 @@
 from .markdown_output import MarkdownOutput
+from .translation_response import TranslationResponse
 from .url_validate_output import UrlValidateOutput

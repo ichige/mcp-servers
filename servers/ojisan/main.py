@@ -9,8 +9,8 @@ load_dotenv()
 
 mcp = FastMCP(
     name="FastMCP Server",
-    sampling_handler=GoogleGenaiSamplingHandler(default_model="gemini-3.1-flash-lite-preview"),
-    sampling_handler_behavior="fallback",
+#    sampling_handler=GoogleGenaiSamplingHandler(default_model="gemini-3.1-flash-lite-preview"),
+#    sampling_handler_behavior="fallback",
 )
 
 # Resources
