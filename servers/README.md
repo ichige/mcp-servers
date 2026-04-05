@@ -14,7 +14,8 @@ uv init
 uv add fastmcp \
   aiofiles \
   GitPython \
-  pydantic
+  pydantic \
+  google-genai
 ```
 
 デバッグは MCP Inspector を使う。

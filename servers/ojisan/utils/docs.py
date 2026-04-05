@@ -59,3 +59,15 @@ class DocsHelper:
             return False
 
         return True
+
+    @staticmethod
+    async def read_docs(path: Path) -> str | None:
+        """
+        指定されたファイルパスから非同期で内容を読み込む
+        """
+        try:
+            async with aiofiles.open(path, "r") as f:
+                return await f.read()
+        except Exception as e:
+            logger.error(f"Failed to read docs: {e}")
+            return None

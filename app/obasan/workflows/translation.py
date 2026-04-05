@@ -10,7 +10,7 @@ from llama_index.core.workflow.events import (
 from logging import getLogger
 from .events import (
     UrlInputEvent,
-    InspectionEvent
+    TranslationEvent
 )
 from obasan.stores import (
     chat_messages,
@@ -19,13 +19,13 @@ from obasan.stores import (
     PhaseEnum
 )
 from .agents import (
-    inspection_run,
+    translation_run,
     valid_url_run
 )
 
 logger = getLogger(__name__)
 
-class InspectionWorkflow(Workflow):
+class TranslationWorkflow(Workflow):
     """
     ローカルのリソースファイルの状況から、
     翻訳対象になるかどうかを判断するワークフロー
@@ -46,9 +46,10 @@ class InspectionWorkflow(Workflow):
         return StopEvent()
 
     @step
-    async def validate(self, ev: UrlInputEvent) -> InspectionEvent | StopEvent:
+    async def validate(self, ev: UrlInputEvent) -> TranslationEvent | StopEvent:
         """
         入力されたURLの正当性をLLMに検証させる
+        TODO: ここの処理なんか同じやん。
         """
         # 処理中に変更
         phase.update(PhaseEnum.PENDING)
@@ -60,7 +61,7 @@ class InspectionWorkflow(Workflow):
                 return StopEvent()
 
             # 次のステップへ
-            return InspectionEvent(path=output.path)
+            return TranslationEvent(path=output.path)
 
         except Exception as e:
             # LLM問い合わせでエラー発生(主に構造化データが不正な場合)
@@ -69,19 +70,19 @@ class InspectionWorkflow(Workflow):
             return StopEvent()
 
     @step
-    async def inspect(self, ev: InspectionEvent) -> StopEvent:
+    async def translate(self, ev: TranslationEvent) -> StopEvent:
         """
-        PATH を元にファイルの状態を検査するツールをLLMに実行させる
+        PATH を元にファイルを翻訳するツールをLLMに実行させる
+        TODO: ほぼほぼ同じ処理であり、イベントやフェーズのステートが違うくらい？
         """
         try:
-            output = await inspection_run(path=ev.path)
-            phase.update(PhaseEnum.INSPECTED)
+            output = await translation_run(path=ev.path)
+            phase.update(PhaseEnum.TRANSLATED)
             await markdown.render_stream(output.markdown)
             await chat_messages.reply_message_stream(output.comment)
 
             return StopEvent()
         except Exception as e:
-            await chat_messages.reply_message_stream("[inspect] 予期せぬエラーが発生しました。")
+            await chat_messages.reply_message_stream("[translate] 予期せぬエラーが発生しました。")
             logger.error(e)
             return StopEvent()
-

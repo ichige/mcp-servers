@@ -5,7 +5,7 @@ from obasan.stores import (
     phase,
     PhaseEnum
 )
-from obasan.workflows.inspection import InspectionWorkflow
+from obasan.workflows import InspectionWorkflow
 
 def state_button():
     """

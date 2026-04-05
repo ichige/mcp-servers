@@ -12,3 +12,9 @@ class InspectionEvent(Event):
     検査実行フェーズのイベント
     """
     path: Annotated[str, "検査対象となるドキュメントのPATH"]
+
+class TranslationEvent(Event):
+    """
+    翻訳実行フェーズのイベント
+    """
+    path: Annotated[str, "翻訳対象となるドキュメントのPATH"]

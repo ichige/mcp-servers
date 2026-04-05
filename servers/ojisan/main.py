@@ -1,9 +1,17 @@
+from dotenv import load_dotenv
 from fastmcp import FastMCP
+from fastmcp.client.sampling.handlers.google_genai import GoogleGenaiSamplingHandler
 from ojisan.resources import register_resources
 from ojisan.tools import register_tools
 from ojisan.prompts import register_prompts
 
-mcp = FastMCP("FastMCP Server")
+load_dotenv()
+
+mcp = FastMCP(
+    name="FastMCP Server",
+    sampling_handler=GoogleGenaiSamplingHandler(default_model="gemini-3.1-flash-lite-preview"),
+    sampling_handler_behavior="fallback",
+)
 
 # Resources
 register_resources(mcp)
