@@ -2,20 +2,21 @@ from nicegui import ui
 from obasan.stores import chat_messages, input_url
 from obasan.workflows import run_workflow, ActionNameEnum
 
-def translate_button():
+def inspect_button():
     """
-    翻訳ボタンコンポーネント
+    ファイル検証ボタンコンポーネント
     """
     async def on_click():
-        await chat_messages.sent_message_stream("ファイルを翻訳してくれ!")
+
+        await chat_messages.sent_message_stream("ファイルの状態を教えてくれ!")
         await chat_messages.reply_message_stream("かしこまりました。少々お待ちください…。")
-        # ファイルの翻訳を実行
-        await run_workflow(action_name=ActionNameEnum.TRANSLATE)
+        # ファイルの検証を実行
+        await run_workflow(action_name=ActionNameEnum.INSPECT)
 
     ui.button(
-        text="翻訳",
-        icon="sym_o_translate",
-        color="positive",
+        text="状態",
+        icon="sym_o_info",
+        color="info",
         on_click=lambda: on_click()
     ).props(
         "size=sm outline"

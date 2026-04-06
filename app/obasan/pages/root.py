@@ -1,7 +1,7 @@
 from nicegui import ui
 from obasan.layouts import base_layout
 from obasan.actions import (
-    state_button,
+    inspect_button,
     save_button,
     translate_button,
     reset_button
@@ -34,8 +34,8 @@ def register_root_page():
                 ui.separator()
                 # Actions w-full を指定しないと幅が狭まる
                 with ui.card_actions().props("align=right").classes("w-full"):
-                    # 情報
-                    state_button()
+                    # 検証
+                    inspect_button()
                     # 翻訳
                     translate_button()
 

@@ -1,3 +1,4 @@
+import os
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 from fastmcp.client.sampling.handlers.google_genai import GoogleGenaiSamplingHandler
@@ -9,9 +10,12 @@ load_dotenv()
 
 mcp = FastMCP(
     name="FastMCP Server",
-    # inspector でデバッグする際はこれで調整すべし。
-    # sampling_handler=GoogleGenaiSamplingHandler(default_model="gemini-3.1-pro-preview"),
-    # sampling_handler_behavior="always",
+    # 保険的な設定なので、LLMの細かい制御が出来ない。
+    sampling_handler=GoogleGenaiSamplingHandler(
+        default_model=os.getenv("MODEL_PREFERENCE", "gemini-3.1-flash-lite-preview")
+    ),
+    # fallback に指定すると、非対応クライアントであれば、自前のLLMを使う。
+    sampling_handler_behavior="fallback",
 )
 
 # Resources
