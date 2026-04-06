@@ -1,21 +1,23 @@
 from nicegui import ui
 from obasan.stores import (
     chat_messages,
-    phase
+    input_url,
+    phase,
+    PhaseEnum
 )
-from ._stab import do_information
+from obasan.workflows import InspectionWorkflow
 
 def state_button():
     """
     状態確認ボタンコンポーネント
     """
     async def on_click():
-        phase.update("start")
+        phase.update(PhaseEnum.START)
         await chat_messages.sent_message_stream("ファイルの状態を教えてくれ!")
         await chat_messages.reply_message_stream("かしこまりました。少々お待ちください…。")
-        phase.update("pending")
-        # TODO: 翻訳なり
-        await do_information()
+
+        workflow = InspectionWorkflow(timeout=360.0)
+        await workflow.run(url=input_url.url)
 
     ui.button(
         text="状態",

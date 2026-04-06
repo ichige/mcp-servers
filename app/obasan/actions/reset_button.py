@@ -1,6 +1,7 @@
 from nicegui import ui
 from obasan.stores import (
     chat_messages,
+    input_url,
     markdown,
     phase
 )
@@ -14,6 +15,7 @@ def reset_button():
         chat_messages.sent_message("...")
         chat_messages.reply_message("...")
         markdown.render("")
+        input_url.update("")
 
     ui.button(
         text="リセット",

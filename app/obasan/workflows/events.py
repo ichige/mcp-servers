@@ -1,0 +1,20 @@
+from workflows.events import Event
+from typing import Annotated
+
+class UrlInputEvent(Event):
+    """
+    翻訳または情報参照を求められた場合のイベント
+    """
+    url: Annotated[str, "翻訳対象となるドキュメントのURL"]
+
+class InspectionEvent(Event):
+    """
+    検査実行フェーズのイベント
+    """
+    path: Annotated[str, "検査対象となるドキュメントのPATH"]
+
+class TranslationEvent(Event):
+    """
+    翻訳実行フェーズのイベント
+    """
+    path: Annotated[str, "翻訳対象となるドキュメントのPATH"]

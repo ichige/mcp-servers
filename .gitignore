@@ -1,3 +1,9 @@
+# IDE
 .idea
+
+# Resources
 .resources
+
+# Others
 node_modules
+.env
