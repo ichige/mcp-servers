@@ -16,7 +16,7 @@ def translate_button():
         await chat_messages.sent_message_stream("ファイルを翻訳してくれ!")
         await chat_messages.reply_message_stream("かしこまりました。少々お待ちください…。")
 
-        workflow = TranslationWorkflow()
+        workflow = TranslationWorkflow(timeout=360.0)
         await workflow.run(url=input_url.url)
 
     ui.button(

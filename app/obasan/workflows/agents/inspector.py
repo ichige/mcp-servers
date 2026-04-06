@@ -15,7 +15,7 @@ async def inspector_agent() -> FunctionAgent:
             temperature=0.0,
             deep_thinking=True
         ),
-        output_cls=MarkdownOutput,
+        output_cls=MarkdownOutput
     )
 
     return workflow

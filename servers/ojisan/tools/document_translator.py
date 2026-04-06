@@ -19,10 +19,9 @@ def register_document_translator_tool(mcp: FastMCP):
     fileinfo tool を登録します。
     """
     @mcp.tool(
-        name="_DocumentTranslator",
-        description="このツールの仕様を禁止します。",
+        name="DocumentTranslator",
         tags={"documentation"},
-        timeout=10.0,
+        timeout=360.0,
         version="1.0.0"
     )
     async def file_inspector(
@@ -67,21 +66,24 @@ def register_document_translator_tool(mcp: FastMCP):
 
         text = await DocsHelper.read_docs(original_path)
         message = f"""
-以下のドキュメントを翻訳して下さい。
-<翻訳対象ドキュメント>
+下記の[START]から[END]までのドキュメントを翻訳して下さい。
+[START]
 
 {text}
+
+[END]
                 """
         try:
             result = await context.sample(
                 messages=[message],
                 # TODO: クライアント対応待ち
-                # model_preferences=["gemini-3.1-pro-preview"],
+                model_preferences=["gemini-3.1-pro-preview"],
                 system_prompt=system_prompt,
                 temperature=0.1,
+                max_tokens=16384,
             )
 
-            return TranslationResponse(success=True, message="OK", translated_text=result.text)
+            return TranslationResponse(success=True, message="OK", translated_text=str(result.text))
         except Exception as e:
             return TranslationResponse(success=False, message=str(e))
 

@@ -16,7 +16,7 @@ def state_button():
         await chat_messages.sent_message_stream("ファイルの状態を教えてくれ!")
         await chat_messages.reply_message_stream("かしこまりました。少々お待ちください…。")
 
-        workflow = InspectionWorkflow()
+        workflow = InspectionWorkflow(timeout=360.0)
         await workflow.run(url=input_url.url)
 
     ui.button(
