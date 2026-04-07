@@ -2,6 +2,7 @@ from fastmcp import FastMCP
 from .file_inspect import register_file_inspect
 from .file_translation import register_file_translation
 from .tool_agent import register_tool_agent
+from .update_local_repository import register_update_local_repository
 from .url_validator import register_url_validator
 
 def register_prompts(mcp: FastMCP):
@@ -11,4 +12,5 @@ def register_prompts(mcp: FastMCP):
     register_file_inspect(mcp)
     register_file_translation(mcp)
     register_tool_agent(mcp)
+    register_update_local_repository(mcp)
     register_url_validator(mcp)

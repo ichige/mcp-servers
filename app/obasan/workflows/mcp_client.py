@@ -4,8 +4,10 @@ from llama_index.core.tools.function_tool import FunctionTool
 from llama_index.core.types import ChatMessage
 from fastmcp import Client
 from fastmcp.client.sampling.handlers.google_genai import GoogleGenaiSamplingHandler
-from typing import Callable, TypeVar, ParamSpec, Awaitable, Any
+from fastmcp.client.elicitation import ElicitResult, ElicitRequestParams, RequestContext
+from typing import Callable, TypeVar, ParamSpec, Awaitable, Any, Optional
 from functools import wraps
+from obasan.components import show_dialog
 
 _client = None
 _mcp_client = None
@@ -23,6 +25,29 @@ def get_client() -> BasicMCPClient:
 
     return _client
 
+async def elicitation_handler(
+    message: str,
+    response_type: type | None,
+    params: ElicitRequestParams,
+    context: RequestContext
+) -> ElicitResult | object:
+    """
+    User Elicitation のハンドラ
+    いわゆる Human-in-the-loop
+    本来であれば、response_type や params を見ながら、UIを構成するべきである。
+    """
+
+    # 今回は簡易的なダイアログで対応する
+    user_input = await show_dialog(message)
+    # 承諾
+    if user_input == "Yes":
+        return ElicitResult(action="accept")
+    # 拒否
+    if user_input == "No":
+        return ElicitResult(action="decline")
+    # キャンセル
+    return ElicitResult(action="cancel")
+
 def get_mcp_client() -> Client:
     """
     FastMCP Client
@@ -36,11 +61,12 @@ def get_mcp_client() -> Client:
         sampling_handler=GoogleGenaiSamplingHandler(
             default_model=os.getenv("GEMINI_FLASH_LITE_MODEL", "gemini-3.1-flash-lite-preview")
         ),
+        elicitation_handler=elicitation_handler,
     )
 
     return _mcp_client
 
-async def get_prompt(name: str, arguments: dict) -> str:
+async def get_prompt(name: str, arguments: Optional[dict] = None) -> str:
     """
     MCP から prompt を取得する
     prompt が1つの場合のみ対応。
@@ -90,7 +116,7 @@ def mcp_sampling_bridge(tool_names: set[str]):
         return wrapper
     return decorator
 
-@mcp_sampling_bridge(tool_names={"DocumentTranslator"})
+@mcp_sampling_bridge(tool_names={"DocumentTranslator", "UpdateLocalRepository"})
 async def get_tools() -> list[FunctionTool]:
     """
     MCP から Tool リストを取得する。
@@ -98,3 +124,18 @@ async def get_tools() -> list[FunctionTool]:
     client = get_client()
     mcp_tool_spec = McpToolSpec(client=client)
     return await mcp_tool_spec.to_tool_list_async()
+
+async def direct_call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    """
+    FastMCP Clientを利用した直接ツール実行
+    """
+    async with get_mcp_client() as client:
+        result = await client.call_tool(
+            name=name,
+            arguments=arguments
+        )
+
+        if result.is_error:
+            raise Exception(f"tool calling {name} failed")
+
+        return result.structured_content

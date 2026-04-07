@@ -12,28 +12,38 @@ from ojisan.utils import (
     GitHelper
 )
 
-def register_update_docs(mcp: FastMCP) -> None:
+def register_update_local_repository(mcp: FastMCP) -> None:
     """
     update_docs tool を登録します。
     """
     @mcp.tool(
-        name="UpdateDocs",
+        name="UpdateLocalRepository",
         tags={"documentation"},
         timeout=30.0,
         version="1.0.0"
     )
-    def update_docs(
+    async def update_local_repository(
         context: Context,
         config: RootConfig = Depends(get_config)
     ) -> SimpleResponse:
         """
-        Updates the local documentation repository by pulling the latest changes from the remote server.
+        FastMCPのローカルリポジトリの最新化を行うツールです。
         """
+        # ユーザに最新化の最終確認する。
+        response = await context.elicit(
+            message=f"Repo: {config.docs.original_repo} を最新化しますか？",
+            response_type=None,
+        )
+
+        # キャンセル
+        if response.action != "accept":
+            return SimpleResponse(success=False, message="Update cancelled")
+
         res = GitHelper.update_repository(config.docs.original_repo)
         if not res:
             return SimpleResponse(message="Failed to update docs")
 
         return SimpleResponse(
             success=True,
-            message=f"Docs updated successfully: {res}"
+            message=f"{res}"
         )

@@ -21,7 +21,7 @@ def register_file_save(mcp: FastMCP) -> None:
     @mcp.tool(
         name="FileSave",
         tags={"documentation"},
-        timeout=10.0,
+        timeout=360.0,
         version="1.0.0"
     )
     async def file_save(
@@ -46,6 +46,17 @@ def register_file_save(mcp: FastMCP) -> None:
         # 保存先が不正なら保存対象としない。
         if save_path is None:
             return SimpleResponse(success=False, message="Invalid save path")
+
+        # ユーザに保存を最終確認する。
+        response = await context.elicit(
+            message=f"Save the following content to {save_path}?",
+            response_type=None,
+        )
+
+        # キャンセル
+        if response.action != "accept":
+            return SimpleResponse(success=False, message="Save cancelled")
+
         # ファイルを非同期で保存する。
         res = await DocsHelper.save_docs(save_path, content)
         if not res:

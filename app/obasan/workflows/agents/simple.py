@@ -2,8 +2,10 @@ from llama_index.core.agent.workflow import FunctionAgent, AgentOutput
 from obasan.workflows.llms import flash_lite_model
 from obasan.workflows.mcp_client import get_prompt, get_tools
 from obasan.workflows.structures import MarkdownOutput
+from pydantic import BaseModel
+from typing import Any, Optional
 
-async def inspector_agent() -> FunctionAgent:
+async def simple_agent() -> FunctionAgent:
     """
     PATHに県連するドキュメントの検証を行うエージェント
     """
@@ -20,21 +22,27 @@ async def inspector_agent() -> FunctionAgent:
 
     return workflow
 
-async def inspection_run(path: str) -> MarkdownOutput:
+async def simple_agent_run[T: BaseModel](
+        prompt: str,
+        model: type[T],
+        arguments: Optional[dict[str, Any]] = None) -> T:
+
     """
     PATHに関連するドキュメントの検査実行
     """
     # 要求 prompt を MCPサーバから取得
-    request = await get_prompt("file_inspect_prompt", {"path": path})
+    print(f"hoge {prompt}", arguments)
+    request = await get_prompt(prompt, arguments)
+    print(f"hoge ", request)
     # agent prompt をMCPから取得する。
     user_msg = await get_prompt("tool_agent_prompt", {"request": request})
 
     # URL検証実行
-    workflow = await inspector_agent()
+    workflow = await simple_agent()
     response: AgentOutput = await workflow.run(user_msg=user_msg)
     # Pydantic Model を生成できない場合は None になる模様。
-    output = response.get_pydantic_model(MarkdownOutput)
-    if isinstance(output, MarkdownOutput):
+    output = response.get_pydantic_model(model)
+    if isinstance(output, model):
         return output
     else:
         # LLM の精度次第で、構造化されずに返ってくる場合がある。

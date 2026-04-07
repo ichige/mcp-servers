@@ -9,8 +9,12 @@ def input_url_component():
     component = ui.input(
         label="URL",
         placeholder="https://gofastmcp.com/getting-started/welcome",
-        on_change=lambda e: input_url.update(e.value)
+#        on_change=lambda e: input_url.update(e.value)
     ).props("clearable outlined dense hint=FastMCPのURLを入力").classes("")
+
+    # bind
+    component.bind_value(target_object=input_url, target_name="url")
+
     # icon
     with component.add_slot('before'):
         ui.icon(

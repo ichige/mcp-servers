@@ -1,3 +1,4 @@
+import os
 from fastmcp import (
     FastMCP,
     Context,
@@ -76,8 +77,7 @@ def register_document_translator_tool(mcp: FastMCP):
         try:
             result = await context.sample(
                 messages=[message],
-                # TODO: クライアント対応待ち
-                model_preferences=["gemini-3.1-pro-preview"],
+                model_preferences=[os.environ.get("MODEL_PREFERENCE", "gemini-3.1-flash-lite-preview")],
                 system_prompt=system_prompt,
                 temperature=0.1,
                 max_tokens=16384,

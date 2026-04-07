@@ -1,7 +1,7 @@
----
-title: "Welcome to FastMCP"
-sidebarTitle: "Welcome!"
-description: The fast, Pythonic way to build MCP servers, clients, and applications.
+--- 
+title: "FastMCPへようこそ"
+sidebarTitle: "ようこそ！"
+description: MCP Server、Client、およびアプリケーションを構築するための、高速でPythonicな方法です。
 icon: hand-wave
 mode: center
 ---
@@ -39,7 +39,7 @@ mode: center
 ></video>
 
 
-**FastMCP is the standard framework for building MCP applications.** The [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) connects LLMs to tools and data. FastMCP gives you everything you need to go from prototype to production — build servers that expose capabilities, connect clients to any MCP service, and give your tools interactive UIs:
+**FastMCPは、MCPアプリケーションを構築するための標準フレームワークです。** [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) は、LLMをToolやデータに接続します。FastMCPは、プロトタイプから本番環境への移行に必要なすべてを提供します。機能を提供するServerの構築、任意のMCPサービスへのClientの接続、そしてToolへのインタラクティブなUIの提供が可能です。
 
 ```python {1}
 from fastmcp import FastMCP
@@ -48,7 +48,7 @@ mcp = FastMCP("Demo 🚀")
 
 @mcp.tool
 def add(a: int, b: int) -> int:
-    """Add two numbers"""
+    """2つの数値を加算する"""
     return a + b
 
 if __name__ == "__main__":
@@ -56,47 +56,47 @@ if __name__ == "__main__":
 ```
 
 
-## Move Fast and Make Things
+## 迅速に開発し、形にする
 
-The [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) lets you give agents access to your tools and data. But building an effective MCP application is harder than it looks.
+[Model Context Protocol](https://modelcontextprotocol.io/) (MCP) を使用すると、エージェントにToolやデータへのアクセス権を与えることができます。しかし、効果的なMCPアプリケーション的構築は見た目以上に困難です。
 
-FastMCP handles all of it. Declare a tool with a Python function, and the schema, validation, and documentation are generated automatically. Connect to a server with a URL, and transport negotiation, authentication, and protocol lifecycle are managed for you. You focus on your logic, and the MCP part just works: **with FastMCP, best practices are built in.**
+FastMCPはこれらすべてを処理します。Python関数でToolを宣言するだけで、スキーマ、バリデーション、ドキュメントが自動的に生成されます。URLを使用してServerに接続すれば、Transportのネゴシエーション、認証、プロトコルのライフサイクルが自動的に管理されます。開発者はロジックに集中でき、MCPの部分はそのまま機能します。**FastMCPには、ベストプラクティスが組み込まれています。**
 
-**That's why FastMCP is the standard framework for working with MCP.** FastMCP 1.0 was incorporated into the official MCP Python SDK in 2024. Today, the actively maintained standalone project is downloaded a million times a day, and some version of FastMCP powers 70% of MCP servers across all languages.
+**これが、FastMCPがMCPを扱うための標準フレームワークである理由です。** FastMCP 1.0は、2024年に公式のMCP Python SDKに組み込まれました。現在、アクティブにメンテナンスされているこのスタンドアロンプロジェクトは1日に100万回ダウンロードされており、すべての言語におけるMCP Serverの70%が何らかのバージョンのFastMCPで稼働しています。
 
-FastMCP has three pillars:
+FastMCPには3つの柱があります。
 
 <CardGroup cols={3}>
   <Card title="Servers" img="/assets/images/servers-card.png" href="/servers/server">
-    Expose tools, resources, and prompts to LLMs.
+    Tool、Resource、PromptをLLMに公開します。
   </Card>
   <Card title="Apps" img="/assets/images/apps-card.png" href="/apps/overview">
-    Give your tools interactive UIs rendered directly in the conversation.
+    会話内に直接レンダリングされるインタラクティブなUIをToolに提供します。
   </Card>
   <Card title="Clients" img="/assets/images/clients-card.png" href="/clients/client">
-    Connect to any MCP server — local or remote, programmatic or CLI.
+    ローカルまたはリモート、プログラムまたはCLIなど、任意のMCP Serverに接続します。
   </Card>
 </CardGroup>
 
-**[Servers](/servers/server)** wrap your Python functions into MCP-compliant tools, resources, and prompts. **[Clients](/clients/client)** connect to any server with full protocol support. And **[Apps](/apps/overview)** give your tools interactive UIs rendered directly in the conversation.
+**[Servers](/servers/server)** は、Python関数をMCP準拠のTool、Resource、Promptにラップします。**[Clients](/clients/client)** は、完全なプロトコルサポートを備えた任意のServerに接続します。そして **[Apps](/apps/overview)** は、会話内に直接レンダリングされるインタラクティブなUIをToolに提供します。
 
-Ready to build? Start with the [installation guide](/getting-started/installation) or jump straight to the [quickstart](/getting-started/quickstart). When you're ready to deploy, [Prefect Horizon](https://www.prefect.io/horizon) offers free hosting for FastMCP users.
+構築の準備はできましたか？ [インストールガイド](/getting-started/installation) から始めるか、[クイックスタート](/getting-started/quickstart) に直接進んでください。デプロイの準備ができたら、[Prefect Horizon](https://www.prefect.io/horizon) がFastMCPユーザー向けに無料のホスティングを提供しています。
 
-FastMCP is made with 💙 by [Prefect](https://www.prefect.io/).
+FastMCPは [Prefect](https://www.prefect.io/) によって 💙 を込めて作られています。
 
 <Tip>
-**This documentation reflects FastMCP's `main` branch**, meaning it always reflects the latest development version. Features are generally marked with version badges (e.g. `New in version: 3.0.0`) to indicate when they were introduced. Note that this may include features that are not yet released.
+**このドキュメントはFastMCPの `main` ブランチを反映しています。** つまり、常に最新の開発バージョンが反映されています。機能がいつ導入されたかを示すために、通常はバージョンバッジ（例: `New in version: 3.0.0`）が付与されています。これには、まだリリースされていない機能が含まれる場合があることにご注意ください。
 </Tip>
 
-## LLM-Friendly Docs
+## LLMフレンドリーなドキュメント
 
-The FastMCP documentation is available in multiple LLM-friendly formats:
+FastMCPのドキュメントは、複数のLLMフレンドリーな形式で利用できます。
 
 ### MCP Server
 
-The FastMCP docs are accessible via MCP! The server URL is `https://gofastmcp.com/mcp`.
+FastMCPのドキュメントにはMCP経由でアクセスできます！ServerのURLは `https://gofastmcp.com/mcp` です。
 
-In fact, you can use FastMCP to search the FastMCP docs:
+実際、FastMCPを使用してFastMCPのドキュメントを検索することができます。
 
 ```python
 import asyncio
@@ -113,12 +113,13 @@ async def main():
 asyncio.run(main())
 ```
 
-### Text Formats
+### テキスト形式
 
-The docs are also available in [llms.txt format](https://llmstxt.org/):
-- [llms.txt](https://gofastmcp.com/llms.txt) - A sitemap listing all documentation pages
-- [llms-full.txt](https://gofastmcp.com/llms-full.txt) - The entire documentation in one file (may exceed context windows)
+ドキュメントは [llms.txt 形式](https://llmstxt.org/) でも利用可能です。
+- [llms.txt](https://gofastmcp.com/llms.txt) - すべてのドキュメントページをリストしたサイトマップ
+- [llms-full.txt](https://gofastmcp.com/llms-full.txt) - 1つのファイルにまとめられたドキュメント全体（コンテキストウィンドウを超える場合があります）
 
-Any page can be accessed as markdown by appending `.md` to the URL. For example, this page becomes `https://gofastmcp.com/getting-started/welcome.md`.
+URLに `.md` を追加することで、任意のページにMarkdownとしてアクセスできます。たとえば、このページは `https://gofastmcp.com/getting-started/welcome.md` になります。
 
-You can also copy any page as markdown by pressing "Cmd+C" (or "Ctrl+C" on Windows) on your keyboard.
+また、キーボードの「Cmd+C」（Windowsの場合は「Ctrl+C」）を押すことで、任意のページをMarkdownとしてコピーすることもできます。
+```
