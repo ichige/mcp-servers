@@ -3,7 +3,8 @@ from obasan.stores import (
     chat_messages,
     input_url,
     markdown,
-    phase
+    phase,
+    PhaseEnum
 )
 
 def reset_button():
@@ -11,11 +12,11 @@ def reset_button():
     リセットボタン
     """
     def on_click():
-        phase.update("standby")
+        phase.update(PhaseEnum.STANDBY)
         chat_messages.sent_message("...")
         chat_messages.reply_message("...")
         markdown.render("")
-        input_url.update("")
+        input_url.reset()
 
     ui.button(
         text="リセット",

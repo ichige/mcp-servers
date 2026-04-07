@@ -25,3 +25,9 @@ uv sync --upgrade
 ```bash
 uv run app.py
 ```
+
+FastMCPのローカルリポジトリの最新化が完了しました。実行結果は以下の通りです。
+\n\n
+```
+{\"success\":true,\"message\":\"Already up to date.\"}
+```

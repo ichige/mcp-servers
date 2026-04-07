@@ -4,14 +4,16 @@ from obasan.actions import (
     inspect_button,
     save_button,
     translate_button,
-    reset_button
+    reset_button,
+    update_button
 )
 from obasan.components import (
     reply_message,
     sent_message,
     server_notification,
     markdown_content,
-    input_url_component
+    input_url_component,
+    elicitation_dialog_component
 )
 from obasan.stores import phase
 
@@ -34,6 +36,8 @@ def register_root_page():
                 ui.separator()
                 # Actions w-full を指定しないと幅が狭まる
                 with ui.card_actions().props("align=right").classes("w-full"):
+                    # 更新
+                    update_button()
                     # 検証
                     inspect_button()
                     # 翻訳
@@ -65,6 +69,9 @@ def register_root_page():
                 save_button()
                 # リセット
                 reset_button()
+
+        # User Elicitation Dialog
+        elicitation_dialog_component()
 
         # 共通レイアウト
         base_layout()

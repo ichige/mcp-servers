@@ -12,6 +12,10 @@ class PhaseEnum(str, Enum):
     TRANSLATED = "translated"
     # 検査完了
     INSPECTED = "inspected"
+    # 保存完了
+    SAVED = "saved"
+    # リポジトリ更新完了
+    UPDATED = "updated"
 
 
 class Phase(BaseModel):
@@ -73,7 +77,7 @@ class Phase(BaseModel):
         """
         コンテンツ表示状態の制御
         """
-        return self.state in [PhaseEnum.TRANSLATED, PhaseEnum.INSPECTED]
+        return self.state in [PhaseEnum.TRANSLATED, PhaseEnum.INSPECTED, PhaseEnum.SAVED, PhaseEnum.UPDATED]
 
 # singleton
 phase = Phase()
