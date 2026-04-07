@@ -1,41 +1,41 @@
 ---
-title: Installation
-description: Install FastMCP and verify your setup
+title: インストール
+description: FastMCPをインストールし、セットアップを確認します
 icon: arrow-down-to-line
 ---
-## Install FastMCP
+## FastMCPのインストール
 
-We recommend using [uv](https://docs.astral.sh/uv/getting-started/installation/) to install and manage FastMCP.
+FastMCPのインストールと管理には、[uv](https://docs.astral.sh/uv/getting-started/installation/)の使用をお勧めします。
 
 ```bash
 pip install fastmcp
 ```
 
-Or with uv:
+または、uvを使用する場合：
 
 ```bash
 uv add fastmcp
 ```
 
-### Optional Dependencies
+### オプションの依存関係
 
-FastMCP provides optional extras for specific features. For example, to install the background tasks extra:
+FastMCPは、特定の機能向けのオプション（extras）を提供しています。たとえば、バックグラウンドタスクのオプションをインストールするには、次のようにします。
 
 ```bash
 pip install "fastmcp[tasks]"
 ```
 
-See [Background Tasks](/servers/tasks) for details on the task system.
+タスクシステムの詳細については、[バックグラウンドタスク](/servers/tasks)を参照してください。
 
-### Verify Installation
+### インストールの確認
 
-To verify that FastMCP is installed correctly, you can run the following command:
+FastMCPが正しくインストールされたことを確認するには、以下のコマンドを実行します。
 
 ```bash
 fastmcp version
 ```
 
-You should see output like the following:
+次のような出力が表示されるはずです。
 
 ```bash
 $ fastmcp version
@@ -47,51 +47,53 @@ Platform:            macOS-15.3.1-arm64-arm-64bit
 FastMCP root path:            ~/Developer/fastmcp
 ```
 
-### Dependency Licensing
+### 依存関係のライセンス
 
 <Info>
-FastMCP depends on Cyclopts for CLI functionality. Cyclopts v4 includes docutils as a transitive dependency, which has complex licensing that may trigger compliance reviews in some organizations.
+FastMCPはCLI機能としてCycloptsに依存しています。Cyclopts v4は推移的依存関係としてdocutilsを含んでいますが、そのライセンスは複雑であり、一部の組織ではコンプライアンス審査の対象となる可能性があります。
 
-If this is a concern, you can install Cyclopts v5 alpha which removes this dependency:
+これが懸念される場合は、この依存関係を削除したCyclopts v5 alphaをインストールできます。
 
 ```bash
 pip install "cyclopts>=5.0.0a1"
 ```
 
-Alternatively, wait for the stable v5 release. See [this issue](https://github.com/BrianPugh/cyclopts/issues/672) for details.
+または、安定版のv5リリースをお待ちください。詳細については、[こちらのIssue](https://github.com/BrianPugh/cyclopts/issues/672)を参照してください。
 </Info>
-## Upgrading
 
-### From FastMCP 2.0
+## アップグレード
 
-See the [Upgrade Guide](/getting-started/upgrading/from-fastmcp-2) for a complete list of breaking changes and migration steps.
+### FastMCP 2.0からのアップグレード
 
-### From the MCP SDK
+破壊的変更と移行手順の完全なリストについては、[アップグレードガイド](/getting-started/upgrading/from-fastmcp-2)を参照してください。
 
-#### From FastMCP 1.0
+### MCP SDKからのアップグレード
 
-If you're using FastMCP 1.0 via the `mcp` package (meaning you import FastMCP as  `from mcp.server.fastmcp import FastMCP`), upgrading is straightforward — for most servers, it's a single import change. See the [full upgrade guide](/getting-started/upgrading/from-mcp-sdk) for details.
+#### FastMCP 1.0からのアップグレード
 
-#### From the Low-Level Server API
+`mcp` パッケージ経由でFastMCP 1.0を使用している場合（つまり、`from mcp.server.fastmcp import FastMCP` としてFastMCPをインポートしている場合）、アップグレードは簡単です。ほとんどのServerでは、インポートを1箇所変更するだけです。詳細については、[完全なアップグレードガイド](/getting-started/upgrading/from-mcp-sdk)を参照してください。
 
-If you built your server directly on the `mcp` package's `Server` class — with `list_tools()`/`call_tool()` handlers and hand-written JSON Schema — see the [migration guide](/getting-started/upgrading/from-low-level-sdk) for a full walkthrough.
+#### 低レベルServer APIからのアップグレード
 
-## Versioning Policy
+`mcp` パッケージの `Server` クラスを直接使用してServerを構築した場合（`list_tools()` / `call_tool()` ハンドラーや手書きのJSON Schemaを使用している場合）、詳細な手順については[移行ガイド](/getting-started/upgrading/from-low-level-sdk)を参照してください。
 
-FastMCP follows semantic versioning with pragmatic adaptations for the rapidly evolving MCP ecosystem. Breaking changes may occur in minor versions (e.g., 2.3.x to 2.4.0) when necessary to stay current with the MCP Protocol.
+## バージョニングポリシー
 
-For production use, always pin to exact versions:
+FastMCPはセマンティックバージョニングに従いますが、急速に進化するMCPエコシステムに合わせて実用的な調整を行っています。MCPプロトコルの最新状態を維持するために必要な場合、マイナーバージョン（例: 2.3.x から 2.4.0）で破壊的変更が発生する可能性があります。
+
+本番環境で使用する場合は、常に正確なバージョンを固定してください。
 ```
-fastmcp==3.0.0  # Good
-fastmcp>=3.0.0  # Bad - may install breaking changes
+fastmcp==3.0.0  # 良い例
+fastmcp>=3.0.0  # 悪い例 - 破壊的変更が含まれるバージョンがインストールされる可能性があります
 ```
 
-See the full [versioning and release policy](/development/releases#versioning-policy) for details on our public API, deprecation practices, and breaking change philosophy.
+パブリックAPI、非推奨化の運用、および破壊的変更に関する考え方の詳細については、[バージョニングおよびリリースポリシー](/development/releases#versioning-policy)の全文を参照してください。
 
-## Contributing to FastMCP
+## FastMCPへのコントリビュート
 
-Interested in contributing to FastMCP? See the [Contributing Guide](/development/contributing) for details on:
-- Setting up your development environment
-- Running tests and pre-commit hooks
-- Submitting issues and pull requests
-- Code standards and review process
+FastMCPへのコントリビュートにご興味がありますか？以下の詳細については、[コントリビューティングガイド](/development/contributing)を参照してください。
+- 開発環境のセットアップ
+- テストとpre-commitフックの実行
+- IssueとPull Requestの提出
+- コーディング規約とレビュープロセス
+
