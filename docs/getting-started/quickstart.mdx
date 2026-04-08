@@ -1,17 +1,17 @@
 ---
-title: Quickstart
+title: クイックスタート
 icon: rocket-launch
 ---
 
-Welcome! This guide will help you quickly set up FastMCP, run your first MCP server, give it a visual UI, and deploy it to Prefect Horizon.
+ようこそ！このガイドでは、FastMCPのセットアップ、最初のMCP Serverの実行、ビジュアルUIの追加、そしてPrefect Horizonへのデプロイを素早く行う方法を説明します。
 
-If you haven't already installed FastMCP, follow the [installation instructions](/getting-started/installation).
+まだFastMCPをインストールしていない場合は、[インストール手順](/getting-started/installation)に従ってください。
 
-## Create a FastMCP Server
+## FastMCP Serverの作成
 
-A FastMCP server is a collection of tools, resources, and other MCP components. To create a server, start by instantiating the `FastMCP` class. 
+FastMCP Serverは、Tool、Resource、およびその他のMCPコンポーネント的集合体です。Serverを作成するには、まず`FastMCP`クラスをインスタンス化します。
 
-Create a new file called `my_server.py` and add the following code:
+`my_server.py`という新しいファイルを作成し、以下のコードを追加します。
 
 ```python my_server.py
 from fastmcp import FastMCP
@@ -19,13 +19,11 @@ from fastmcp import FastMCP
 mcp = FastMCP("My MCP Server")
 ```
 
+これだけです！非常にシンプルですが、FastMCP Serverを作成できました。より面白くするために、Toolを追加してみましょう。
 
-That's it! You've created a FastMCP server, albeit a very boring one. Let's add a tool to make it more interesting.
+## Toolの追加
 
-
-## Add a Tool
-
-To add a tool that returns a simple greeting, write a function and decorate it with `@mcp.tool` to register it with the server:
+シンプルな挨拶を返すToolを追加するには、関数を記述し、`@mcp.tool` Decoratorを付けてServerに登録します。
 
 ```python my_server.py {5-7}
 from fastmcp import FastMCP
@@ -37,10 +35,9 @@ def greet(name: str) -> str:
     return f"Hello, {name}!"
 ```
 
+## Serverの実行
 
-## Run the Server
-
-The simplest way to run your FastMCP server is to call its `run()` method. You can choose between different transports, like `stdio` for local servers, or `http` for remote access:
+FastMCP Serverを実行する最も簡単な方法は、`run()`メソッドを呼び出すことです。ローカルServer用の`stdio`や、リモートアクセス用の`http`など、異なるTransportを選択できます。
 
 <CodeGroup>
 
@@ -72,31 +69,31 @@ if __name__ == "__main__":
 
 </CodeGroup>
 
-This lets us run the server with `python my_server.py`. The stdio transport is the traditional way to connect MCP servers to clients, while the HTTP transport enables remote connections.
+これにより、`python my_server.py`でServerを実行できます。stdio TransportはMCP ServerをClientに接続する従来の方法であり、HTTP Transportはリモート接続を可能にします。
 
 <Tip>
-Why do we need the `if __name__ == "__main__":` block?
+なぜ `if __name__ == "__main__":` ブロックが必要なのでしょうか？
 
-The `__main__` block is recommended for consistency and compatibility, ensuring your server works with all MCP clients that execute your server file as a script. Users who will exclusively run their server with the FastMCP CLI can omit it, as the CLI imports the server object directly.
+`__main__`ブロックは、一貫性と互換性のために推奨されており、Serverファイルをスクリプトとして実行するすべてのMCP ClientでServerが機能することを保証します。FastMCP CLIのみを使用してServerを実行するユーザーは、CLIがServerオブジェクトを直接インポートするため、これを省略できます。
 </Tip>
 
-### Using the FastMCP CLI
+### FastMCP CLIの使用
 
-You can also use the `fastmcp run` command to start your server. Note that the FastMCP CLI **does not** execute the `__main__` block of your server file. Instead, it imports your server object and runs it with whatever transport and options you provide.
+`fastmcp run`コマンドを使用してServerを起動することもできます。FastMCP CLIはServerファイルの`__main__`ブロックを**実行しない**ことに注意してください。代わりに、Serverオブジェクトをインポートし、指定されたTransportとオプションで実行します。
 
-For example, to run this server with the default stdio transport (no matter how you called `mcp.run()`), you can use the following command:
+たとえば、このServerをデフォルトのstdio Transportで実行するには（`mcp.run()`の呼び出し方に関係なく）、以下のコマンドを使用できます。
 ```bash
 fastmcp run my_server.py:mcp
 ```
 
-To run this server with the HTTP transport, you can use the following command:
+このServerをHTTP Transportで実行するには、以下のコマンドを使用できます。
 ```bash
 fastmcp run my_server.py:mcp --transport http --port 8000
 ```
 
-## Call Your Server
+## Serverの呼び出し
 
-Once your server is running with HTTP transport, you can connect to it with a FastMCP client or any LLM client that supports the MCP protocol:
+ServerがHTTP Transportで実行されたら、FastMCP Clientや、MCPプロトコルをサポートする任意のLLM Clientを使用して接続できます。
 
 ```python my_client.py
 import asyncio
@@ -112,16 +109,16 @@ async def call_tool(name: str):
 asyncio.run(call_tool("Ford"))
 ```
 
-Note that:
-- FastMCP clients are asynchronous, so we need to use `asyncio.run` to run the client
-- We must enter a client context (`async with client:`) before using the client
-- You can make multiple client calls within the same context
+注意点:
+- FastMCP Clientは非同期であるため、Clientを実行するには`asyncio.run`を使用する必要があります。
+- Clientを使用する前に、Clientコンテキスト（`async with client:`）に入る必要があります。
+- 同じコンテキスト内で複数のClient呼び出しを行うことができます。
 
-## Give Your Tool a UI
+## ToolへのUIの追加
 
-Tools normally return text, but any tool can return an interactive UI instead. Add `app=True` to your tool decorator and return a [Prefab](https://prefab.prefect.io) component — the host renders it as a chart, table, form, or any other visual element right in the conversation. This requires the `apps` extra (`pip install "fastmcp[apps]"`).
+Toolは通常テキストを返しますが、任意のToolでインタラクティブなUIを返すこともできます。ToolのDecoratorに`app=True`を追加し、[Prefab](https://prefab.prefect.io)コンポーネントを返します。これにより、ホストは会話の中に直接、チャート、テーブル、フォーム、またはその他の視覚要素としてレンダリングします。これには`apps`の追加パッケージが必要です（`pip install "fastmcp[apps]"`）。
 
-The `app=True` flag tells FastMCP to wire up the renderer and protocol metadata automatically. The tool still works like any other MCP tool — it receives arguments and returns a result — but the result is a component tree that the host displays visually instead of as plain text.
+`app=True`フラグは、レンダラーとプロトコルのメタデータを自動的に接続するようFastMCPに指示します。Toolは他のMCP Toolと同様に機能し（Argumentを受け取り、結果を返します）、その結果はプレーンテキストではなく、ホストが視覚的に表示するコンポーネントツリーになります。
 
 ```python my_server.py
 from prefab_ui.app import PrefabApp
@@ -133,7 +130,7 @@ mcp = FastMCP("My MCP Server")
 
 @mcp.tool(app=True)
 def greet(name: str) -> PrefabApp:
-    """Greet someone with a visual card."""
+    """視覚的なカードで誰かに挨拶します。"""
     with Column(gap=4, css_class="p-6") as view:
         Heading(f"Hello, {name}!")
         with Row(gap=2, align="center"):
@@ -143,22 +140,22 @@ def greet(name: str) -> PrefabApp:
     return PrefabApp(view=view)
 ```
 
-You can preview app tools locally with `fastmcp dev apps my_server.py` — no MCP host required. See the [Apps overview](/apps/overview) for the full guide, including state management, forms, charts, and server-connected interactivity.
+`fastmcp dev apps my_server.py`を使用すると、MCPホストなしでローカルでアプリToolをプレビューできます。状態管理、フォーム、チャート、Server接続のインタラクティビティを含む完全なガイドについては、[Appsの概要](/apps/overview)を参照してください。
 
-## Deploy to Prefect Horizon
+## Prefect Horizonへのデプロイ
 
-[Prefect Horizon](https://horizon.prefect.io) is the enterprise MCP platform built by the FastMCP team at [Prefect](https://www.prefect.io). It provides managed hosting, authentication, access control, and observability for MCP servers.
+[Prefect Horizon](https://horizon.prefect.io)は、[Prefect](https://www.prefect.io)のFastMCPチームによって構築されたエンタープライズ向けMCPプラットフォームです。MCP Serverのマネージドホスティング、認証、アクセス制御、および可観測性を提供します。
 
 <Info>
-Horizon is **free for personal projects** and offers enterprise governance for teams.
+Horizonは**個人プロジェクトでは無料**であり、チーム向けのエンタープライズガバナンスを提供します。
 </Info>
 
-To deploy your server, you'll need a [GitHub account](https://github.com). Once you have one, you can deploy your server in three steps:
+Serverをデプロイするには、[GitHubアカウント](https://github.com)が必要です。アカウントがあれば、3つのステップでServerをデプロイできます。
 
-1. Push your `my_server.py` file to a GitHub repository
-2. Sign in to [Prefect Horizon](https://horizon.prefect.io) with your GitHub account
-3. Create a new project from your repository and enter `my_server.py:mcp` as the server entrypoint
+1. `my_server.py`ファイルをGitHubリポジトリにプッシュします。
+2. GitHubアカウントで[Prefect Horizon](https://horizon.prefect.io)にサインインします。
+3. リポジトリから新しいプロジェクトを作成し、Serverのエントリーポイントとして`my_server.py:mcp`を入力します。
 
-That's it! Horizon will build and deploy your server, making it available at a URL like `https://your-project.fastmcp.app/mcp`. You can chat with it to test its functionality, or connect to it from any LLM client that supports the MCP protocol.
+これだけです！HorizonはServerをビルドしてデプロイし、`https://your-project.fastmcp.app/mcp`のようなURLで利用できるようにします。チャットして機能をテストしたり、MCPプロトコルをサポートする任意のLLM Clientから接続したりできます。
 
-For more details, see the [Prefect Horizon guide](/deployment/prefect-horizon).
+詳細については、[Prefect Horizonガイド](/deployment/prefect-horizon)を参照してください。

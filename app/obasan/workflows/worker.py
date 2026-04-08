@@ -1,35 +1,26 @@
 from llama_index.core import set_global_handler
-from llama_index.core.workflow import (
-    Workflow,
-    step
-)
-from llama_index.core.workflow.events import (
-    StopEvent
-)
+from llama_index.core.workflow import Workflow,step
+from llama_index.core.workflow.events import StopEvent
 from logging import getLogger
-
-from .structures import MarkdownOutput
 from .events import (
     ActionEvent,
     UrlInputEvent,
-    InspectionEvent,
-    TranslationEvent,
     SaveEvent,
     UpdateRepoEvent,
+    InspectionEvent,
+    TranslationEvent,
     ActionNameEnum
 )
 from obasan.stores import (
-    chat_messages,
     phase,
+    chat_messages,
     markdown,
     input_url,
     PhaseEnum
 )
-from .agents import (
-    simple_agent_run,
-    valid_url_run,
-    translation_run
-)
+
+from .agents import agent_run, simple_agent_run
+from .structures import MarkdownOutput, UrlValidateOutput
 from .mcp_client import direct_call_tool
 
 logger = getLogger(__name__)
@@ -37,12 +28,12 @@ logger = getLogger(__name__)
 class AppWorkflow(Workflow):
     """
     翻訳アプリの統合ワークフロー
+    各ステップをMixinで登録
     """
 
     @step
     async def routing(self, ev: ActionEvent) -> (
         UrlInputEvent |
-        TranslationEvent |
         StopEvent |
         SaveEvent |
         UpdateRepoEvent
@@ -90,7 +81,11 @@ class AppWorkflow(Workflow):
         # 処理中に変更
         phase.update(PhaseEnum.PENDING)
         try:
-            output = await valid_url_run(ev.url)
+            output = await simple_agent_run(
+                prompt=ev.prompt,
+                arguments=ev.arguments(),
+                model=UrlValidateOutput
+            )
             # 検証エラー
             if not output.is_valid:
                 await chat_messages.reply_message_stream(output.reason)
@@ -124,7 +119,7 @@ class AppWorkflow(Workflow):
         PATH を元にファイルの状態を検査するツールをLLMに実行させる
         """
         try:
-            output = await simple_agent_run(
+            output = await agent_run(
                 prompt=ev.prompt,
                 arguments=ev.arguments(),
                 model=MarkdownOutput
@@ -136,23 +131,6 @@ class AppWorkflow(Workflow):
             return StopEvent()
         except Exception as e:
             await chat_messages.reply_message_stream("[inspect] 予期せぬエラーが発生しました。")
-            logger.error(e)
-            return StopEvent()
-
-    @step
-    async def translate(self, ev: TranslationEvent) -> StopEvent:
-        """
-        PATH を元にファイルを翻訳するツールをLLMに実行させる
-        """
-        try:
-            output = await translation_run(path=ev.path)
-            phase.update(PhaseEnum.TRANSLATED)
-            await markdown.render_stream(output.markdown)
-            await chat_messages.reply_message_stream(output.comment)
-
-            return StopEvent()
-        except Exception as e:
-            await chat_messages.reply_message_stream("[translate] 予期せぬエラーが発生しました。")
             logger.error(e)
             return StopEvent()
 
@@ -182,12 +160,34 @@ class AppWorkflow(Workflow):
         return StopEvent()
 
     @step
+    async def translate(self, ev: TranslationEvent) -> StopEvent:
+        """
+        PATH を元にファイルを翻訳するツールをLLMに実行させる
+        """
+        try:
+            output = await agent_run(
+                prompt=ev.prompt,
+                arguments=ev.arguments(),
+                model=MarkdownOutput
+            )
+            phase.update(PhaseEnum.TRANSLATED)
+            # 長文で Stream 描画は重いので、一撃描画で。
+            markdown.render(output.markdown)
+            await chat_messages.reply_message_stream(output.comment)
+
+            return StopEvent()
+        except Exception as e:
+            await chat_messages.reply_message_stream("[translate] 予期せぬエラーが発生しました。")
+            logger.error(e)
+            return StopEvent()
+
+    @step
     async def update(self, ev: UpdateRepoEvent) -> StopEvent:
         """
         FastMCP のローカルリポジトリを更新させる
         """
         try:
-            output = await simple_agent_run(
+            output = await agent_run(
                 prompt=ev.prompt,
                 model=MarkdownOutput
             )
@@ -207,10 +207,12 @@ async def run_workflow(action_name: ActionNameEnum) -> None:
     """
     set_global_handler("simple")
     phase.update(PhaseEnum.START)
-    workflow = AppWorkflow(timeout=360.0)
+    workflow = AppWorkflow(timeout=600.0)
+
     await workflow.run(
         start_event=ActionEvent(
             action_name=action_name,
             url=input_url.url
-        )
+        ),
+
     )

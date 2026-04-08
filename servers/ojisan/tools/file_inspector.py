@@ -50,6 +50,6 @@ def register_file_inspector_tool(mcp: FastMCP):
             # TODO: 英語版の最終更新日時(Git)が日本語版より新しい場合は、outdated を更新する。
             if translated_path is not None:
                 stat_t = translated_path.stat()
-                info.outdated = stat_o.st_mtime > stat_t.st_mtime
+                info.outdated = info.committed_date > int(stat_t.st_mtime) if stat_t.st_mtime else False
 
         return info

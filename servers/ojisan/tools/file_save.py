@@ -21,7 +21,7 @@ def register_file_save(mcp: FastMCP) -> None:
     @mcp.tool(
         name="FileSave",
         tags={"documentation"},
-        timeout=360.0,
+        timeout=600.0,
         version="1.0.0"
     )
     async def file_save(

@@ -1,38 +1,38 @@
 ---
 title: MCP Context
 sidebarTitle: Context
-description: Access MCP capabilities like logging, progress, and resources within your MCP objects.
+description: MCPオブジェクト内でロギング、進捗状況、ResourceなどのMCP機能にアクセスします。
 icon: rectangle-code
 tag: NEW
 ---
 import { VersionBadge } from '/snippets/version-badge.mdx'
 
-When defining FastMCP [tools](/servers/tools), [resources](/servers/resources), resource templates, or [prompts](/servers/prompts), your functions might need to interact with the underlying MCP session or access advanced server capabilities. FastMCP provides the `Context` object for this purpose.
+FastMCPの[Tool](/servers/tools)、[Resource](/servers/resources)、Resourceテンプレート、または[Prompt](/servers/prompts)を定義する際、関数が基盤となるMCPセッションと対話したり、高度なServer機能にアクセスしたりする必要がある場合があります。FastMCPは、この目的のために`Context`オブジェクトを提供しています。
 
 <Note>
-You access Context through FastMCP's dependency injection system. For other injectable values like HTTP requests, access tokens, and custom dependencies, see [Dependency Injection](/servers/dependency-injection).
+Contextには、FastMCPの依存性注入（Dependency Injection）システムを通じてアクセスします。HTTPリクエスト、アクセストークン、カスタム依存関係など、その他の注入可能な値については、[Dependency Injection](/servers/dependency-injection)を参照してください。
 </Note>
 
-## What Is Context?
+## Contextとは？
 
-The `Context` object provides a clean interface to access MCP features within your functions, including:
+`Context`オブジェクトは、関数内でMCP機能にアクセスするためのクリーンなインターフェースを提供します。これには以下が含まれます。
 
-- **Logging**: Send debug, info, warning, and error messages back to the client
-- **Progress Reporting**: Update the client on the progress of long-running operations
-- **Resource Access**: List and read data from resources registered with the server
-- **Prompt Access**: List and retrieve prompts registered with the server
-- **LLM Sampling**: Request the client's LLM to generate text based on provided messages
-- **User Elicitation**: Request structured input from users during tool execution
-- **Session State**: Store data that persists across requests within an MCP session
-- **Session Visibility**: [Control which components are visible](/servers/visibility#per-session-visibility) to the current session
-- **Request Information**: Access metadata about the current request
-- **Server Access**: When needed, access the underlying FastMCP server instance
+- **ロギング**: デバッグ、情報、警告、エラーメッセージをClientに送り返します。
+- **進捗報告**: 実行時間の長い操作の進捗状況をClientに更新します。
+- **Resourceアクセス**: Serverに登録されたResourceのリスト取得やデータの読み取りを行います。
+- **Promptアクセス**: Serverに登録されたPromptのリスト取得や取得を行います。
+- **LLMサンプリング**: 提供されたメッセージに基づいてテキストを生成するよう、ClientのLLMにリクエストします。
+- **ユーザー入力の要求 (User Elicitation)**: Tool実行中にユーザーに構造化された入力を要求します。
+- **セッション状態**: MCPセッション内のリクエスト間で永続化されるデータを保存します。
+- **セッションの可視性**: 現在のセッションに対して[どのコンポーネントを表示するかを制御](/servers/visibility#per-session-visibility)します。
+- **リクエスト情報**: 現在のリクエストに関するメタデータにアクセスします。
+- **Serverアクセス**: 必要に応じて、基盤となるFastMCP Serverインスタンスにアクセスします。
 
-## Accessing the Context
+## Contextへのアクセス
 
 <VersionBadge version="2.14" />
 
-The preferred way to access context is using the `CurrentContext()` dependency:
+Contextにアクセスする推奨される方法は、`CurrentContext()`依存関係を使用することです。
 
 ```python {1, 6}
 from fastmcp import FastMCP
@@ -43,12 +43,12 @@ mcp = FastMCP(name="Context Demo")
 
 @mcp.tool
 async def process_file(file_uri: str, ctx: Context = CurrentContext()) -> str:
-    """Processes a file, using context for logging and resource access."""
+    """ロギングとResourceアクセスのためにContextを使用して、ファイルを処理します。"""
     await ctx.info(f"Processing {file_uri}")
     return "Processed file"
 ```
 
-This works with tools, resources, and prompts:
+これはTool、Resource、Promptで機能します。
 
 ```python
 from fastmcp import FastMCP
@@ -67,16 +67,16 @@ async def data_analysis_request(dataset: str, ctx: Context = CurrentContext()) -
     return f"Please analyze the following dataset: {dataset}"
 ```
 
-**Key Points:**
+**重要なポイント:**
 
-- Dependency parameters are automatically excluded from the MCP schema—clients never see them.
-- Context methods are async, so your function usually needs to be async as well.
-- **Each MCP request receives a new context object.** Context is scoped to a single request; state or data set in one request will not be available in subsequent requests.
-- Context is only available during a request; attempting to use context methods outside a request will raise errors.
+- 依存関係のパラメータはMCPスキーマから自動的に除外されるため、Clientから見えることはありません。
+- Contextのメソッドは非同期（async）であるため、通常は関数も非同期にする必要があります。
+- **各MCPリクエストは新しいContextオブジェクトを受け取ります。** Contextは単一のリクエストにスコープされています。あるリクエストで設定された状態やデータは、後続のリクエストでは利用できません。
+- Contextはリクエストの処理中のみ利用可能です。リクエストの外部でContextのメソッドを使用しようとすると、エラーが発生します。
 
-### Legacy Type-Hint Injection
+### レガシーな型ヒントによる注入
 
-For backwards compatibility, you can still access context by simply adding a parameter with the `Context` type hint. FastMCP will automatically inject the context instance:
+下位互換性のため、`Context`の型ヒントを持つパラメータを追加するだけでもContextにアクセスできます。FastMCPは自動的にContextインスタンスを注入します。
 
 ```python {1, 6}
 from fastmcp import FastMCP, Context
@@ -85,18 +85,18 @@ mcp = FastMCP(name="Context Demo")
 
 @mcp.tool
 async def process_file(file_uri: str, ctx: Context) -> str:
-    """Processes a file, using context for logging and resource access."""
-    # Context is injected automatically based on the type hint
+    """ロギングとResourceアクセスのためにContextを使用して、ファイルを処理します。"""
+    # Contextは型ヒントに基づいて自動的に注入されます
     return "Processed file"
 ```
 
-This approach still works for tools, resources, and prompts. The parameter name doesn't matter—only the `Context` type hint is important. The type hint can also be a union (`Context | None`) or use `Annotated[]`.
+このアプローチは、引き続きTool、Resource、Promptで機能します。パラメータ名は重要ではなく、`Context`という型ヒントのみが重要です。型ヒントはユニオン（`Context | None`）にしたり、`Annotated[]`を使用したりすることもできます。
 
-### Via `get_context()` Function
+### `get_context()` 関数経由
 
 <VersionBadge version="2.2.11" />
 
-For code nested deeper within your function calls where passing context through parameters is inconvenient, use `get_context()` to retrieve the active context from anywhere within a request's execution flow:
+関数呼び出しの深い階層にネストされたコードなど、パラメータを通じてContextを渡すのが不便な場合は、`get_context()`を使用して、リクエストの実行フロー内のどこからでもアクティブなContextを取得できます。
 
 ```python {2,9}
 from fastmcp import FastMCP
@@ -104,31 +104,31 @@ from fastmcp.server.dependencies import get_context
 
 mcp = FastMCP(name="Dependency Demo")
 
-# Utility function that needs context but doesn't receive it as a parameter
+# Contextを必要とするが、パラメータとして受け取らないユーティリティ関数
 async def process_data(data: list[float]) -> dict:
-    # Get the active context - only works when called within a request
+    # アクティブなContextを取得 - リクエスト内で呼び出された場合のみ機能します
     ctx = get_context()
     await ctx.info(f"Processing {len(data)} data points")
 
 @mcp.tool
 async def analyze_dataset(dataset_name: str) -> dict:
-    # Call utility function that uses context internally
+    # 内部でContextを使用するユーティリティ関数を呼び出します
     data = load_data(dataset_name)
     await process_data(data)
 ```
 
-**Important Notes:**
+**重要な注意事項:**
 
-- The `get_context()` function should only be used within the context of a server request. Calling it outside of a request will raise a `RuntimeError`.
-- The `get_context()` function is server-only and should not be used in client code.
+- `get_context()`関数は、Serverリクエストのコンテキスト内でのみ使用する必要があります。リクエストの外部で呼び出すと、`RuntimeError`が発生します。
+- `get_context()`関数はServer専用であり、Clientコードでは使用しないでください。
 
-## Context Capabilities
+## Contextの機能
 
-FastMCP provides several advanced capabilities through the context object. Each capability has dedicated documentation with comprehensive examples and best practices:
+FastMCPは、Contextオブジェクトを通じていくつかの高度な機能を提供します。各機能には、包括的な例とベストプラクティスを含む専用のドキュメントがあります。
 
-### Logging
+### ロギング
 
-Send debug, info, warning, and error messages back to the MCP client for visibility into function execution.
+関数の実行状況を可視化するために、デバッグ、情報、警告、エラーメッセージをMCP Clientに送り返します。
 
 ```python
 await ctx.debug("Starting analysis")
@@ -137,12 +137,13 @@ await ctx.warning("Deprecated parameter used")
 await ctx.error("Processing failed")
 ```
 
-See [Server Logging](/servers/logging) for complete documentation and examples.
-### Client Elicitation
+完全なドキュメントと例については、[Server Logging](/servers/logging)を参照してください。
+
+### Clientへの入力要求 (Client Elicitation)
 
 <VersionBadge version="2.10.0" />
 
-Request structured input from clients during tool execution, enabling interactive workflows and progressive disclosure. This is a new feature in the 6/18/2025 MCP spec.
+Tool実行中にClientに構造化された入力を要求し、インタラクティブなワークフローと段階的な情報開示を可能にします。これは2025年6月18日のMCP仕様における新機能です。
 
 ```python
 result = await ctx.elicit("Enter your name:", response_type=str)
@@ -150,72 +151,71 @@ if result.action == "accept":
     name = result.data
 ```
 
-See [User Elicitation](/servers/elicitation) for detailed examples and supported response types.
+詳細な例とサポートされているレスポンスの型については、[User Elicitation](/servers/elicitation)を参照してください。
 
-### LLM Sampling
+### LLMサンプリング
 
 <VersionBadge version="2.0.0" />
 
-Request the client's LLM to generate text based on provided messages, useful for leveraging AI capabilities within your tools.
+提供されたメッセージに基づいてテキストを生成するようClientのLLMにリクエストします。これは、Tool内でAI機能を活用するのに役立ちます。
 
 ```python
 response = await ctx.sample("Analyze this data", temperature=0.7)
 ```
 
-See [LLM Sampling](/servers/sampling) for comprehensive usage and advanced techniques.
+包括的な使用方法と高度なテクニックについては、[LLM Sampling](/servers/sampling)を参照してください。
 
+### 進捗報告
 
-### Progress Reporting
-
-Update clients on the progress of long-running operations, enabling progress indicators and better user experience.
+実行時間の長い操作の進捗状況をClientに更新し、プログレスインジケーターの表示やユーザーエクスペリエンスの向上を可能にします。
 
 ```python
-await ctx.report_progress(progress=50, total=100)  # 50% complete
+await ctx.report_progress(progress=50, total=100)  # 50% 完了
 ```
 
-See [Progress Reporting](/servers/progress) for detailed patterns and examples.
+詳細なパターンと例については、[Progress Reporting](/servers/progress)を参照してください。
 
-### Resource Access
+### Resourceアクセス
 
-List and read data from resources registered with your FastMCP server, allowing access to files, configuration, or dynamic content.
+FastMCP Serverに登録されたResourceのリスト取得やデータの読み取りを行い、ファイル、設定、または動的コンテンツへのアクセスを可能にします。
 
 ```python
-# List available resources
+# 利用可能なResourceをリストアップします
 resources = await ctx.list_resources()
 
-# Read a specific resource
+# 特定のResourceを読み取ります
 content_list = await ctx.read_resource("resource://config")
 content = content_list[0].content
 ```
 
-**Method signatures:**
-- **`ctx.list_resources() -> list[MCPResource]`**: <VersionBadge version="2.13.0" /> Returns list of all available resources
-- **`ctx.read_resource(uri: str | AnyUrl) -> list[ReadResourceContents]`**: Returns a list of resource content parts
+**メソッドシグネチャ:**
+- **`ctx.list_resources() -> list[MCPResource]`**: <VersionBadge version="2.13.0" /> 利用可能なすべてのResourceのリストを返します。
+- **`ctx.read_resource(uri: str | AnyUrl) -> list[ReadResourceContents]`**: Resourceコンテンツのパーツのリストを返します。
 
-### Prompt Access
+### Promptアクセス
 
 <VersionBadge version="2.13.0" />
 
-List and retrieve prompts registered with your FastMCP server, allowing tools and middleware to discover and use available prompts programmatically.
+FastMCP Serverに登録されたPromptのリスト取得や取得を行い、Toolやミドルウェアがプログラムから利用可能なPromptを発見して使用できるようにします。
 
 ```python
-# List available prompts
+# 利用可能なPromptをリストアップします
 prompts = await ctx.list_prompts()
 
-# Get a specific prompt with arguments
+# 引数を指定して特定のPromptを取得します
 result = await ctx.get_prompt("analyze_data", {"dataset": "users"})
 messages = result.messages
 ```
 
-**Method signatures:**
-- **`ctx.list_prompts() -> list[MCPPrompt]`**: Returns list of all available prompts
-- **`ctx.get_prompt(name: str, arguments: dict[str, Any] | None = None) -> GetPromptResult`**: Get a specific prompt with optional arguments
+**メソッドシグネチャ:**
+- **`ctx.list_prompts() -> list[MCPPrompt]`**: 利用可能なすべてのPromptのリストを返します。
+- **`ctx.get_prompt(name: str, arguments: dict[str, Any] | None = None) -> GetPromptResult`**: オプションの引数を指定して特定のPromptを取得します。
 
-### Session State
+### セッション状態
 
 <VersionBadge version="3.0.0" />
 
-Store data that persists across multiple requests within the same MCP session. Session state is automatically keyed by the client's session, ensuring isolation between different clients.
+同じMCPセッション内の複数のリクエスト間で永続化されるデータを保存します。セッション状態はClientのセッションによって自動的にキー付けされ、異なるClient間の分離が保証されます。
 
 ```python
 from fastmcp import FastMCP, Context
@@ -224,97 +224,97 @@ mcp = FastMCP("stateful-app")
 
 @mcp.tool
 async def increment_counter(ctx: Context) -> int:
-    """Increment a counter that persists across tool calls."""
+    """Tool呼び出し間で永続化されるカウンターをインクリメントします。"""
     count = await ctx.get_state("counter") or 0
     await ctx.set_state("counter", count + 1)
     return count + 1
 
 @mcp.tool
 async def get_counter(ctx: Context) -> int:
-    """Get the current counter value."""
+    """現在のカウンター値を取得します。"""
     return await ctx.get_state("counter") or 0
 ```
 
-Each client session has its own isolated state—two different clients calling `increment_counter` will each have their own counter.
+各Clientセッションは独自の分離された状態を持ちます。2つの異なるClientが`increment_counter`を呼び出した場合、それぞれが独自のカウンターを持つことになります。
 
-**Method signatures:**
-- **`await ctx.set_state(key, value, *, serializable=True)`**: Store a value in session state
-- **`await ctx.get_state(key)`**: Retrieve a value (returns None if not found)
-- **`await ctx.delete_state(key)`**: Remove a value from session state
+**メソッドシグネチャ:**
+- **`await ctx.set_state(key, value, *, serializable=True)`**: セッション状態に値を保存します。
+- **`await ctx.get_state(key)`**: 値を取得します（見つからない場合はNoneを返します）。
+- **`await ctx.delete_state(key)`**: セッション状態から値を削除します。
 
 <Note>
-State methods are async and require `await`. State expires after 1 day to prevent unbounded memory growth.
+状態メソッドは非同期（async）であり、`await`が必要です。メモリの無制限な増加を防ぐため、状態は1日後に期限切れになります。
 </Note>
 
-#### Non-Serializable Values
+#### シリアライズ不可能な値
 
-By default, state values must be JSON-serializable (dicts, lists, strings, numbers, etc.) so they can be persisted across requests. For non-serializable values like HTTP clients or database connections, pass `serializable=False`:
+デフォルトでは、リクエスト間で永続化できるように、状態の値はJSONシリアライズ可能（辞書、リスト、文字列、数値など）である必要があります。HTTP Clientやデータベース接続などのシリアライズ不可能な値の場合は、`serializable=False`を渡します。
 
 ```python
 @mcp.tool
 async def my_tool(ctx: Context) -> str:
-    # This object can't be JSON-serialized
+    # このオブジェクトはJSONシリアライズできません
     client = SomeHTTPClient(base_url="https://api.example.com")
     await ctx.set_state("client", client, serializable=False)
 
-    # Retrieve it later in the same request
+    # 同じリクエスト内で後で取得します
     client = await ctx.get_state("client")
     return await client.fetch("/data")
 ```
 
-Values stored with `serializable=False` only live for the current MCP request (a single tool call, resource read, or prompt render). They will not be available in subsequent requests within the session.
+`serializable=False`で保存された値は、現在のMCPリクエスト（単一のTool呼び出し、Resource読み取り、またはPromptレンダリング）の間のみ有効です。セッション内の後続のリクエストでは利用できません。
 
-#### Custom Storage Backends
+#### カスタムストレージバックエンド
 
-By default, session state uses an in-memory store suitable for single-server deployments. For distributed or serverless deployments, provide a custom storage backend:
+デフォルトでは、セッション状態は単一Serverのデプロイメントに適したインメモリストアを使用します。分散デプロイメントやサーバーレスデプロイメントの場合は、カスタムストレージバックエンドを提供します。
 
 ```python
 from key_value.aio.stores.redis import RedisStore
 
-# Use Redis for distributed state
+# 分散状態にRedisを使用します
 mcp = FastMCP("distributed-app", session_state_store=RedisStore(...))
 ```
 
-Any backend compatible with the [py-key-value-aio](https://github.com/strawgate/py-key-value) `AsyncKeyValue` protocol works. See [Storage Backends](/servers/storage-backends) for more options including Redis, DynamoDB, and MongoDB.
+[py-key-value-aio](https://github.com/strawgate/py-key-value)の`AsyncKeyValue`プロトコルと互換性のある任意のバックエンドが機能します。Redis、DynamoDB、MongoDBなどのその他のオプションについては、[Storage Backends](/servers/storage-backends)を参照してください。
 
-#### State During Initialization
+#### 初期化中の状態
 
-State set during `on_initialize` middleware persists to subsequent tool calls when using the same session object (STDIO, SSE, single-server HTTP). For distributed/serverless HTTP deployments where different machines handle init and tool calls, state is isolated by the `mcp-session-id` header.
+`on_initialize`ミドルウェア中に設定された状態は、同じセッションオブジェクト（STDIO、SSE、単一ServerのHTTP）を使用する場合、後続のTool呼び出しに永続化されます。異なるマシンが初期化とTool呼び出しを処理する分散/サーバーレスHTTPデプロイメントの場合、状態は`mcp-session-id`ヘッダーによって分離されます。
 
-### Session Visibility
-
-<VersionBadge version="3.0.0" />
-
-Tools can customize which components are visible to their current session using `ctx.enable_components()`, `ctx.disable_components()`, and `ctx.reset_visibility()`. These methods apply visibility rules that affect only the calling session, leaving other sessions unchanged. See [Per-Session Visibility](/servers/visibility#per-session-visibility) for complete documentation, filter criteria, and patterns like namespace activation.
-
-### Change Notifications
+### セッションの可視性
 
 <VersionBadge version="3.0.0" />
 
-FastMCP automatically sends list change notifications when components (such as tools, resources, or prompts) are added, removed, enabled, or disabled. In rare cases where you need to manually trigger these notifications, you can use the context's notification methods:
+Toolは、`ctx.enable_components()`、`ctx.disable_components()`、および`ctx.reset_visibility()`を使用して、現在のセッションに対してどのコンポーネントを表示するかをカスタマイズできます。これらのメソッドは、呼び出し元のセッションにのみ影響を与える可視性ルールを適用し、他のセッションは変更しません。完全なドキュメント、フィルター条件、および名前空間のアクティブ化などのパターンについては、[Per-Session Visibility](/servers/visibility#per-session-visibility)を参照してください。
+
+### 変更通知
+
+<VersionBadge version="3.0.0" />
+
+FastMCPは、コンポーネント（Tool、Resource、Promptなど）が追加、削除、有効化、または無効化されたときに、リスト変更通知を自動的に送信します。これらの通知を手動でトリガーする必要があるまれなケースでは、Contextの通知メソッドを使用できます。
 
 ```python
 import mcp.types
 
 @mcp.tool
 async def custom_tool_management(ctx: Context) -> str:
-    """Example of manual notification after custom tool changes."""
+    """カスタムTool変更後の手動通知の例。"""
     await ctx.send_notification(mcp.types.ToolListChangedNotification())
     await ctx.send_notification(mcp.types.ResourceListChangedNotification())
     await ctx.send_notification(mcp.types.PromptListChangedNotification())
     return "Notifications sent"
 ```
 
-These methods are primarily used internally by FastMCP's automatic notification system and most users will not need to invoke them directly.
+これらのメソッドは主にFastMCPの自動通知システムによって内部的に使用されるため、ほとんどのユーザーは直接呼び出す必要はありません。
 
 ### FastMCP Server
 
-To access the underlying FastMCP server instance, you can use the `ctx.fastmcp` property:
+基盤となるFastMCP Serverインスタンスにアクセスするには、`ctx.fastmcp`プロパティを使用できます。
 
 ```python
 @mcp.tool
 async def my_tool(ctx: Context) -> None:
-    # Access the FastMCP server instance
+    # FastMCP Serverインスタンスにアクセスします
     server_name = ctx.fastmcp.name
     ...
 ```
@@ -323,9 +323,9 @@ async def my_tool(ctx: Context) -> None:
 
 <VersionBadge version="3.0.0" />
 
-The `ctx.transport` property indicates which transport is being used to run the server. This is useful when your tool needs to behave differently depending on whether the server is running over STDIO, SSE, or Streamable HTTP. For example, you might want to return shorter responses over STDIO or adjust timeout behavior based on transport characteristics.
+`ctx.transport`プロパティは、Serverの実行に使用されているTransportを示します。これは、ServerがSTDIO、SSE、またはStreamable HTTPのいずれで実行されているかに応じて、Toolの動作を変える必要がある場合に便利です。たとえば、STDIO経由ではより短いレスポンスを返したり、Transportの特性に基づいてタイムアウトの動作を調整したりすることができます。
 
-The transport type is set once when the server starts and remains constant for the server's lifetime. It returns `None` when called outside of a server context (for example, in unit tests or when running code outside of an MCP request).
+TransportのタイプはServerの起動時に一度設定され、Serverの存続期間中は一定に保たれます。Serverコンテキストの外部（たとえば、ユニットテストやMCPリクエストの外部でコードを実行する場合）で呼び出された場合は、`None`を返します。
 
 ```python
 from fastmcp import FastMCP, Context
@@ -344,40 +344,40 @@ def connection_info(ctx: Context) -> str:
         return "Transport unknown"
 ```
 
-**Property signature:** `ctx.transport -> Literal["stdio", "sse", "streamable-http"] | None`
+**プロパティシグネチャ:** `ctx.transport -> Literal["stdio", "sse", "streamable-http"] | None`
 
-### MCP Request
+### MCPリクエスト
 
-Access metadata about the current request and client.
+現在のリクエストとClientに関するメタデータにアクセスします。
 
 ```python
 @mcp.tool
 async def request_info(ctx: Context) -> dict:
-    """Return information about the current request."""
+    """現在のリクエストに関する情報を返します。"""
     return {
         "request_id": ctx.request_id,
         "client_id": ctx.client_id or "Unknown client"
     }
 ```
 
-**Available Properties:**
+**利用可能なプロパティ:**
 
-- **`ctx.request_id -> str`**: Get the unique ID for the current MCP request
-- **`ctx.client_id -> str | None`**: Get the ID of the client making the request, if provided during initialization
-- **`ctx.session_id -> str`**: Get the MCP session ID for session-based data sharing. Raises `RuntimeError` if the MCP session is not yet established.
+- **`ctx.request_id -> str`**: 現在のMCPリクエストの一意のIDを取得します。
+- **`ctx.client_id -> str | None`**: 初期化時に提供されている場合、リクエストを行っているClientのIDを取得します。
+- **`ctx.session_id -> str`**: セッションベースのデータ共有のためのMCPセッションIDを取得します。MCPセッションがまだ確立されていない場合は、`RuntimeError`が発生します。
 
-#### Request Context Availability
+#### リクエストコンテキストの可用性
 
 <VersionBadge version="2.13.1" />
 
-The `ctx.request_context` property provides access to the underlying MCP request context, but returns `None` when the MCP session has not been established yet. This typically occurs:
+`ctx.request_context`プロパティは、基盤となるMCPリクエストコンテキストへのアクセスを提供しますが、MCPセッションがまだ確立されていない場合は`None`を返します。これは通常、以下の場合に発生します。
 
-- During middleware execution in the `on_request` hook before the MCP handshake completes
-- During the initialization phase of client connections
+- MCPハンドシェイクが完了する前の`on_request`フックでのミドルウェア実行中
+- Client接続の初期化フェーズ中
 
-The MCP request context is distinct from the HTTP request. For HTTP transports, HTTP request data may be available even when the MCP session is not yet established.
+MCPリクエストコンテキストはHTTPリクエストとは異なります。HTTP Transportの場合、MCPセッションがまだ確立されていなくても、HTTPリクエストデータが利用できる場合があります。
 
-To safely access the request context in situations where it may not be available:
+リクエストコンテキストが利用できない可能性がある状況で安全にアクセスするには、次のようにします。
 
 ```python
 from fastmcp import FastMCP, Context
@@ -387,18 +387,18 @@ mcp = FastMCP(name="Session Aware Demo")
 
 @mcp.tool
 async def session_info(ctx: Context) -> dict:
-    """Return session information when available."""
+    """利用可能な場合にセッション情報を返します。"""
 
-    # Check if MCP session is available
+    # MCPセッションが利用可能か確認します
     if ctx.request_context:
-        # MCP session available - can access MCP-specific attributes
+        # MCPセッションが利用可能 - MCP固有の属性にアクセスできます
         return {
             "session_id": ctx.session_id,
             "request_id": ctx.request_id,
             "has_meta": ctx.request_context.meta is not None
         }
     else:
-        # MCP session not available - use HTTP helpers for request data (if using HTTP transport)
+        # MCPセッションが利用不可 - リクエストデータにHTTPヘルパーを使用します（HTTP Transportを使用している場合）
         request = get_http_request()
         return {
             "message": "MCP session not available",
@@ -406,38 +406,38 @@ async def session_info(ctx: Context) -> dict:
         }
 ```
 
-For HTTP request access that works regardless of MCP session availability (when using HTTP transports), use the [HTTP request helpers](/servers/dependency-injection#http-request) like `get_http_request()` and `get_http_headers()`.
+MCPセッションの可用性に関係なく機能するHTTPリクエストアクセス（HTTP Transportを使用する場合）については、`get_http_request()`や`get_http_headers()`などの[HTTPリクエストヘルパー](/servers/dependency-injection#http-request)を使用してください。
 
-#### Client Metadata
+#### Clientメタデータ
 
 <VersionBadge version="2.13.1" />
 
-Clients can send contextual information with their requests using the `meta` parameter. This metadata is accessible through `ctx.request_context.meta` and is available for all MCP operations (tools, resources, prompts).
+Clientは、`meta`パラメータを使用してリクエストにコンテキスト情報を送信できます。このメタデータは`ctx.request_context.meta`を通じてアクセスでき、すべてのMCP操作（Tool、Resource、Prompt）で利用可能です。
 
-The `meta` field is `None` when clients don't provide metadata. When provided, metadata is accessible via attribute access (e.g., `meta.user_id`) rather than dictionary access. The structure of metadata is determined by the client making the request.
+Clientがメタデータを提供しない場合、`meta`フィールドは`None`になります。提供された場合、メタデータは辞書アクセスではなく属性アクセス（例: `meta.user_id`）を介してアクセスできます。メタデータの構造は、リクエストを行うClientによって決定されます。
 
 ```python
 @mcp.tool
 def send_email(to: str, subject: str, body: str, ctx: Context) -> str:
-    """Send an email, logging metadata about the request."""
+    """リクエストに関するメタデータをロギングしながら、メールを送信します。"""
 
-    # Access client-provided metadata
+    # Clientが提供したメタデータにアクセスします
     meta = ctx.request_context.meta
 
     if meta:
-        # Meta is accessed as an object with attribute access
+        # Metaは属性アクセスを持つオブジェクトとしてアクセスされます
         user_id = meta.user_id if hasattr(meta, 'user_id') else None
         trace_id = meta.trace_id if hasattr(meta, 'trace_id') else None
 
-        # Use metadata for logging, observability, etc.
+        # ロギング、可観測性などのためにメタデータを使用します
         if trace_id:
             log_with_trace(f"Sending email for user {user_id}", trace_id)
 
-    # Send the email...
+    # メールを送信します...
     return f"Email sent to {to}"
 ```
 
 <Warning>
-The MCP request is part of the low-level MCP SDK and intended for advanced use cases. Most users will not need to use it directly.
+MCPリクエストは低レベルのMCP SDKの一部であり、高度なユースケースを対象としています。ほとんどのユーザーは直接使用する必要はありません。
 </Warning>
 

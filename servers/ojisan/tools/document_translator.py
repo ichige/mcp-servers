@@ -22,7 +22,7 @@ def register_document_translator_tool(mcp: FastMCP):
     @mcp.tool(
         name="DocumentTranslator",
         tags={"documentation"},
-        timeout=360.0,
+        timeout=600.0,
         version="1.0.0"
     )
     async def file_inspector(
@@ -80,7 +80,7 @@ def register_document_translator_tool(mcp: FastMCP):
                 model_preferences=[os.environ.get("MODEL_PREFERENCE", "gemini-3.1-flash-lite-preview")],
                 system_prompt=system_prompt,
                 temperature=0.1,
-                max_tokens=16384,
+                max_tokens=100000,
             )
 
             return TranslationResponse(success=True, message="OK", translated_text=str(result.text))
