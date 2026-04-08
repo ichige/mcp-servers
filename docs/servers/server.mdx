@@ -1,17 +1,17 @@
 ---
-title: The FastMCP Server
+title: FastMCP Server
 sidebarTitle: Overview
-description: The core FastMCP server class for building MCP applications
+description: MCPアプリケーションを構築するための中核となるFastMCP Serverクラス
 icon: server
 ---
 
 import { VersionBadge } from "/snippets/version-badge.mdx"
 
-The `FastMCP` class is the central piece of every FastMCP application. It acts as the container for your tools, resources, and prompts, managing communication with MCP clients and orchestrating the entire server lifecycle.
+ `FastMCP`クラスは、すべてのFastMCPアプリケーションの中心となる要素です。Tool、Resource、Promptのコンテナとして機能し、MCP Clientとの通信を管理し、Serverのライフサイクル全体をオーケストレーションします。
 
-## Creating a Server
+## Serverの作成
 
-At its simplest, a FastMCP server just needs a name. Everything else has sensible defaults.
+最もシンプルな形では、FastMCP Serverには名前だけが必要です。その他の設定には適切なデフォルト値が用意されています。
 
 ```python
 from fastmcp import FastMCP
@@ -19,7 +19,7 @@ from fastmcp import FastMCP
 mcp = FastMCP("MyServer")
 ```
 
-Instructions help clients (and the LLMs behind them) understand what your server does and how to use it effectively.
+`instructions`（指示）は、Client（およびその背後にあるLLM）がServerの役割や効果的な使用方法を理解するのに役立ちます。
 
 ```python
 mcp = FastMCP(
@@ -28,20 +28,19 @@ mcp = FastMCP(
 )
 ```
 
-## Components
+## コンポーネント
 
-FastMCP servers expose three types of components to clients, each serving a distinct role in the MCP protocol.
+FastMCP Serverは、3種類のコンポーネントをClientに公開します。それぞれがMCPプロトコルにおいて明確な役割を果たします。
 
-**Tools** are functions that clients invoke to perform actions or access external systems.
+**Tool**は、アクションを実行したり外部システムにアクセスしたりするためにClientが呼び出す関数です。
 
 ```python
-@mcp.tool
-def multiply(a: float, b: float) -> float:
-    """Multiplies two numbers together."""
+@mcp.tool def multiply(a: float, b: float) -> float:
+    """2つの数値を掛け合わせます。"""
     return a * b
 ```
 
-**Resources** expose data that clients can read — passive data sources rather than invocable functions.
+**Resource**は、Clientが読み取ることができるデータを公開します。呼び出し可能な関数ではなく、受動的なデータソースです。
 
 ```python
 @mcp.resource("data://config")
@@ -49,7 +48,7 @@ def get_config() -> dict:
     return {"theme": "dark", "version": "1.0"}
 ```
 
-**Prompts** are reusable message templates that guide LLM interactions.
+**Prompt**は、LLMとのインタラクションをガイドする再利用可能なメッセージテンプレートです。
 
 ```python
 @mcp.prompt
@@ -58,11 +57,11 @@ def analyze_data(data_points: list[float]) -> str:
     return f"Please analyze these data points: {formatted_data}"
 ```
 
-Each component type has detailed documentation: [Tools](/servers/tools), [Resources](/servers/resources) (including [Resource Templates](/servers/resources#resource-templates)), and [Prompts](/servers/prompts).
+各コンポーネントタイプの詳細なドキュメントは、[Tools](/servers/tools)、[Resources](/servers/resources)（[Resource Templates](/servers/resources#resource-templates)を含む）、および[Prompts](/servers/prompts)を参照してください。
 
-## Running the Server
+## Serverの実行
 
-Start your server by calling `mcp.run()`. The `if __name__` guard ensures compatibility with MCP clients that launch your server as a subprocess.
+`mcp.run()`を呼び出してServerを起動します。`if __name__`ガードを使用することで、Serverをサブプロセスとして起動するMCP Clientとの互換性を確保できます。
 
 ```python
 from fastmcp import FastMCP
@@ -71,156 +70,156 @@ mcp = FastMCP("MyServer")
 
 @mcp.tool
 def greet(name: str) -> str:
-    """Greet a user by name."""
+    """ユーザーに名前で挨拶します。"""
     return f"Hello, {name}!"
 
 if __name__ == "__main__":
     mcp.run()
 ```
 
-FastMCP supports several transports:
-- **STDIO** (default): For local integrations and CLI tools
-- **HTTP**: For web services using the Streamable HTTP protocol
-- **SSE**: Legacy web transport (deprecated)
+FastMCPはいくつかのTransportをサポートしています。
+- **STDIO**（デフォルト）: ローカル統合およびCLIツール用
+- **HTTP**: Streamable HTTPプロトコルを使用するWebサービス用
+- **SSE**: レガシーなWeb Transport（非推奨）
 
 ```python
-# Run with HTTP transport
+# HTTP Transportで実行
 mcp.run(transport="http", host="127.0.0.1", port=9000)
 ```
 
-The server can also be run using the FastMCP CLI. For detailed information on transports and deployment, see [Running Your Server](/deployment/running-server).
+ServerはFastMCP CLIを使用して実行することもできます。Transportやデプロイの詳細については、[Running Your Server](/deployment/running-server)を参照してください。
 
 
-## Configuration Reference
+## 設定リファレンス
 
-The `FastMCP` constructor accepts parameters organized into four categories: identity, composition, behavior, and handlers.
+`FastMCP`コンストラクタは、identity（アイデンティティ）、composition（構成）、behavior（動作）、handlers（ハンドラー）の4つのカテゴリに分類されるパラメータを受け入れます。
 
 ### Identity
 
-These parameters control how your server presents itself to clients.
+これらのパラメータは、ServerがClientに対して自身をどのように提示するかを制御します。
 
 <Card>
 <ParamField body="name" type="str" default="FastMCP">
-  A human-readable name for your server, shown in client applications and logs
+  Clientアプリケーションやログに表示される、人間が読めるServerの名前です。
 </ParamField>
 
 <ParamField body="instructions" type="str | None">
-  Description of how to interact with this server. Clients surface these instructions to help LLMs understand the server's purpose and available functionality
+  このServerとの対話方法に関する説明です。Clientはこれらの指示を提示し、LLMがServerの目的や利用可能な機能を理解するのを助けます。
 </ParamField>
 
 <ParamField body="version" type="str | None">
-  Version string for your server. Defaults to the FastMCP library version if not provided
+  Serverのバージョン文字列です。指定されない場合、FastMCPライブラリのバージョンがデフォルトとして使用されます。
 </ParamField>
 
 <ParamField body="website_url" type="str | None">
   <VersionBadge version="2.13.0" />
 
-  URL to a website with more information about your server. Displayed in client applications
+  Serverに関する詳細情報が記載されたWebサイトのURLです。Clientアプリケーションに表示されます。
 </ParamField>
 
 <ParamField body="icons" type="list[Icon] | None">
   <VersionBadge version="2.13.0" />
 
-  List of icon representations for your server. See [Icons](/servers/icons) for details
+  Serverのアイコン表現のリストです。詳細は[Icons](/servers/icons)を参照してください。
 </ParamField>
 </Card>
 
 ### Composition
 
-These parameters control what your server is built from — its components, middleware, providers, and lifecycle.
+これらのパラメータは、コンポーネント、ミドルウェア、プロバイダー、ライフサイクルなど、Serverを構成する要素を制御します。
 
 <Card>
 <ParamField body="tools" type="list[Tool | Callable] | None">
-  Tools to register on the server. An alternative to the `@mcp.tool` decorator when you need to add tools programmatically
+  Serverに登録するToolです。プログラムでToolを追加する必要がある場合、`@mcp.tool` Decoratorの代わりに使用します。
 </ParamField>
 
 <ParamField body="auth" type="OAuthProvider | TokenVerifier | None">
-  Authentication provider for securing HTTP-based transports. See [Authentication](/servers/auth/authentication) for configuration
+  HTTPベースのTransportを保護するための認証プロバイダーです。設定については[Authentication](/servers/auth/authentication)を参照してください。
 </ParamField>
 
 <ParamField body="middleware" type="list[Middleware] | None">
-  [Middleware](/servers/middleware) that intercepts and transforms every MCP message flowing through the server — requests, responses, and notifications in both directions. Use for cross-cutting concerns like logging, error handling, and rate limiting
+  Serverを通過するすべてのMCPメッセージ（双方向のリクエスト、レスポンス、通知）をインターセプトして変換する[Middleware](/servers/middleware)です。ロギング、エラーハンドリング、レート制限などの横断的な関心事に利用します。
 </ParamField>
 
 <ParamField body="providers" type="list[Provider] | None">
-  [Providers](/servers/providers) that supply tools, resources, and prompts dynamically. Providers are queried at request time, so they can serve components from databases, APIs, or other external sources
+  Tool、Resource、Promptを動的に提供する[Providers](/servers/providers)です。プロバイダーはリクエスト時にクエリされるため、データベース、API、その他の外部ソースからコンポーネントを提供できます。
 </ParamField>
 
 <ParamField body="transforms" type="list[Transform] | None">
   <VersionBadge version="3.1.0" />
 
-  Server-level [transforms](/servers/transforms/transforms) to apply to all components. Transforms modify how tools, resources, and prompts are presented to clients — for example, [search transforms](/servers/transforms/tool-search) replace large catalogs with on-demand discovery
+  すべてのコンポーネントに適用されるServerレベルの[transforms](/servers/transforms/transforms)です。Transformは、Tool、Resource、PromptがClientにどのように提示されるかを変更します。例えば、[search transforms](/servers/transforms/tool-search)は、大規模なカタログをオンデマンドの検索に置き換えます。
 </ParamField>
 
 <ParamField body="lifespan" type="Lifespan | AsyncContextManager | None">
-  Server-level setup and teardown logic that runs when the server starts and stops. See [Lifespans](/servers/lifespan) for composable lifespans
+  Serverの起動時および停止時に実行される、Serverレベルのセットアップおよびティアダウンロジックです。コンポーザブルなライフサイクルについては[Lifespans](/servers/lifespan)を参照してください。
 </ParamField>
 </Card>
 
 ### Behavior
 
-These parameters tune how the server processes requests and communicates with clients.
+これらのパラメータは、Serverがリクエストを処理し、Clientと通信する方法を調整します。
 
 <Card>
 <ParamField body="on_duplicate" type='Literal["warn", "error", "replace", "ignore"]' default="warn">
-  How to handle duplicate component registrations
+  重複するコンポーネント登録の処理方法です。
 </ParamField>
 
 <ParamField body="strict_input_validation" type="bool" default="False">
   <VersionBadge version="2.13.0" />
 
-  When `False` (default), FastMCP uses Pydantic's flexible validation that coerces compatible inputs (e.g., `"10"` → `10` for int parameters). When `True`, validates inputs against the exact JSON Schema before calling your function, rejecting type mismatches. See [Input Validation Modes](/servers/tools#input-validation-modes) for details
+  `False`（デフォルト）の場合、FastMCPは互換性のある入力を強制変換するPydanticの柔軟なバリデーションを使用します（例: intパラメータに対する `"10"` → `10`）。`True`の場合、関数を呼び出す前に正確なJSON Schemaに対して入力を検証し、型の不一致を拒否します。詳細は[Input Validation Modes](/servers/tools#input-validation-modes)を参照してください。
 </ParamField>
 
 <ParamField body="mask_error_details" type="bool | None">
-  When `True`, replaces internal error details in tool/resource responses with a generic message to avoid leaking implementation details to clients. Defaults to the `FASTMCP_MASK_ERROR_DETAILS` environment variable
+  `True`の場合、実装の詳細がClientに漏れるのを防ぐため、Tool/Resourceのレスポンスに含まれる内部エラーの詳細を一般的なメッセージに置き換えます。デフォルトは `FASTMCP_MASK_ERROR_DETAILS` 環境変数に依存します。
 </ParamField>
 
 <ParamField body="list_page_size" type="int | None" default="None">
   <VersionBadge version="3.0.0" />
 
-  Maximum items per page for list operations (`tools/list`, `resources/list`, etc.). When `None`, all results are returned in a single response. See [Pagination](/servers/pagination) for details
+  リスト操作（`tools/list`、`resources/list`など）における1ページあたりの最大アイテム数です。`None`の場合、すべての結果が単一のレスポンスで返されます。詳細は[Pagination](/servers/pagination)を参照してください。
 </ParamField>
 
 <ParamField body="tasks" type="bool | None" default="False">
-  Enable background task support. When `True`, tools and resources can return `CreateTaskResult` to run work asynchronously while the client polls for results
+  バックグラウンドタスクのサポートを有効にします。`True`の場合、ToolとResourceは `CreateTaskResult` を返すことができ、Clientが結果をポーリングする間に非同期で作業を実行できます。
 </ParamField>
 
 <ParamField body="client_log_level" type="LoggingLevel | None">
   <VersionBadge version="3.2.0" />
 
-  Default minimum log level for messages sent to MCP clients via `context.log()`. When set, messages below this level are suppressed. Individual clients can override this per-session using the MCP `logging/setLevel` request. One of `"debug"`, `"info"`, `"notice"`, `"warning"`, `"error"`, `"critical"`, `"alert"`, or `"emergency"`
+  `context.log()` を介してMCP Clientに送信されるメッセージのデフォルトの最小ログレベルです。設定すると、このレベル未満のメッセージは抑制されます。個々のClientは、MCPの `logging/setLevel` リクエストを使用してセッションごとにこれを上書きできます。`"debug"`, `"info"`, `"notice"`, `"warning"`, `"error"`, `"critical"`, `"alert"`, `"emergency"` のいずれかを指定します。
 </ParamField>
 
 <ParamField body="dereference_schemas" type="bool" default="True">
-  Automatically dereference `$ref` pointers in JSON schemas generated from complex Pydantic models. Most clients require flat schemas without `$ref`, so this should usually stay enabled
+  複雑なPydanticモデルから生成されたJSON Schema内の `$ref` ポインタを自動的に解決（dereference）します。ほとんどのClientは `$ref` のないフラットなスキーマを必要とするため、通常は有効のままにしておく必要があります。
 </ParamField>
 </Card>
 
 ### Handlers and Storage
 
-These parameters provide custom handlers for MCP capabilities and persistent storage for session state.
+これらのパラメータは、MCPの機能に対するカスタムハンドラーと、セッション状態のための永続ストレージを提供します。
 
 <Card>
 <ParamField body="sampling_handler" type="SamplingHandler | None">
-  Custom handler for MCP sampling requests (server-initiated LLM calls). See [Sampling](/servers/sampling) for details
+  MCPのサンプリングリクエスト（Server主導のLLM呼び出し）用のカスタムハンドラーです。詳細は[Sampling](/servers/sampling)を参照してください。
 </ParamField>
 
 <ParamField body="sampling_handler_behavior" type='Literal["always", "fallback"] | None' default="fallback">
-  When `"fallback"`, the sampling handler is used only when no tool-specific handler exists. When `"always"`, this handler is used for all sampling requests
+  `"fallback"` の場合、サンプリングハンドラーはTool固有のハンドラーが存在しない場合にのみ使用されます。`"always"` の場合、このハンドラーはすべてのサンプリングリクエストに使用されます。
 </ParamField>
 
 <ParamField body="session_state_store" type="AsyncKeyValue | None">
-  Persistent key-value store for session state that survives across requests. Defaults to an in-memory store. Provide a custom implementation for persistence across server restarts
+  リクエスト間で維持されるセッション状態のための永続的なKey-Valueストアです。デフォルトはインメモリストアです。Serverの再起動をまたいで永続化するには、カスタム実装を提供してください。
 </ParamField>
 </Card>
 
 
-## Tag-Based Filtering
+## タグベースのフィルタリング
 
 <VersionBadge version="2.8.0" />
 
-Tags let you categorize components and selectively expose them. This is useful for creating different views of your server for different environments or user types.
+タグを使用すると、コンポーネントを分類し、選択的に公開することができます。これは、環境やユーザータイプに応じてServerの異なるビューを作成するのに役立ちます。
 
 ```python
 @mcp.tool(tags={"public", "utility"})
@@ -232,34 +231,34 @@ def admin_tool() -> str:
     return "This tool is for admins only"
 ```
 
-The filtering logic works as follows:
-- **Enable with `only=True`**: Switches to allowlist mode — only components with at least one matching tag are exposed
-- **Disable**: Components with any matching tag are hidden
-- **Precedence**: Later calls override earlier ones, so call `disable` after `enable` to exclude from an allowlist
+フィルタリングのロジックは以下の通り機能します。
+- **`only=True` での有効化**: 許可リスト（allowlist）モードに切り替わります。一致するタグを少なくとも1つ持つコンポーネントのみが公開されます。
+- **無効化**: 一致するタグをいずれか持つコンポーネントは非表示になります。
+- **優先順位**: 後から呼び出されたものが前のものを上書きします。そのため、許可リストから除外するには、`enable` の後に `disable` を呼び出します。
 
 <Tip>
-To ensure a component is never exposed, you can set `enabled=False` on the component itself. See the component-specific documentation for details.
+コンポーネントが絶対に公開されないようにするには、コンポーネント自体に `enabled=False` を設定します。詳細はコンポーネント固有のドキュメントを参照してください。
 </Tip>
 
 ```python
-# Only expose components tagged with "public"
+# "public"タグが付いたコンポーネントのみを公開
 mcp = FastMCP()
 mcp.enable(tags={"public"}, only=True)
 
-# Hide components tagged as "internal" or "deprecated"
+# "internal"または"deprecated"としてタグ付けされたコンポーネントを非表示
 mcp = FastMCP()
 mcp.disable(tags={"internal", "deprecated"})
 
-# Combine both: show admin tools but hide deprecated ones
+# 両方を組み合わせる: adminツールを表示するが、非推奨のものは非表示にする
 mcp = FastMCP()
 mcp.enable(tags={"admin"}, only=True).disable(tags={"deprecated"})
 ```
 
-This filtering applies to all component types (tools, resources, resource templates, and prompts) and affects both listing and access.
+このフィルタリングはすべてのコンポーネントタイプ（Tool、Resource、Resource Template、Prompt）に適用され、リスト表示とアクセスの両方に影響します。
 
-## Custom Routes
+## カスタムルート
 
-When running with HTTP transport, you can add custom web routes alongside your MCP endpoint using the `@custom_route` decorator.
+HTTP Transportで実行する場合、`@custom_route` Decoratorを使用して、MCPエンドポイントと並行してカスタムWebルートを追加できます。
 
 ```python
 from fastmcp import FastMCP
@@ -273,7 +272,7 @@ async def health_check(request: Request) -> PlainTextResponse:
     return PlainTextResponse("OK")
 
 if __name__ == "__main__":
-    mcp.run(transport="http")  # Health check at http://localhost:8000/health
+    mcp.run(transport="http")  # http://localhost:8000/health でヘルスチェック
 ```
 
-Custom routes are useful for health checks, status endpoints, and simple webhooks. For more complex web applications, consider [mounting your MCP server into a FastAPI or Starlette app](/deployment/http#integration-with-web-frameworks).
+カスタムルートは、ヘルスチェック、ステータスエンドポイント、シンプルなWebhookに便利です。より複雑なWebアプリケーションの場合は、[FastAPIまたはStarletteアプリへのMCP Serverのマウント](/deployment/http#integration-with-web-frameworks)を検討してください。

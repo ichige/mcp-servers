@@ -54,7 +54,7 @@ def register_root_page():
                     server_notification()
 
         # マークダウンコンテンツ表示
-        with ui.card().classes("") as content_card:
+        with ui.card().classes("w-full") as content_card:
 
             content_card.bind_visibility_from(
                 target_object=phase,

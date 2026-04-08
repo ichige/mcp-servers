@@ -1,30 +1,30 @@
 ---
-title: Prompts
-sidebarTitle: Prompts
-description: Create reusable, parameterized prompt templates for MCP clients.
+title: プロンプト
+sidebarTitle: プロンプト
+description: MCP Client向けの再利用可能でパラメータ化されたPromptテンプレートを作成します。
 icon: message-lines
 ---
 
 import { VersionBadge } from "/snippets/version-badge.mdx"
 
-Prompts are reusable message templates that help LLMs generate structured, purposeful responses. FastMCP simplifies defining these templates, primarily using the `@mcp.prompt` decorator.
+Promptは、LLMが構造化された目的のある応答を生成するのに役立つ、再利用可能なメッセージテンプレートです。FastMCPは、主に `@mcp.prompt` Decoratorを使用して、これらのテンプレートの定義を簡素化します。
 
-## What Are Prompts?
+## Promptとは？
 
-Prompts provide parameterized message templates for LLMs. When a client requests a prompt:
+Promptは、LLM向けのパラメータ化されたメッセージテンプレートを提供します。ClientがPromptをリクエストすると、以下の処理が行われます。
 
-1.  FastMCP finds the corresponding prompt definition.
-2.  If it has parameters, they are validated against your function signature.
-3.  Your function executes with the validated inputs.
-4.  The generated message(s) are returned to the LLM to guide its response.
+1.  FastMCPは対応するPrompt定義を検索します。
+2.  パラメータがある場合、関数のシグネチャに対して検証されます。
+3.  検証された入力を使用して関数が実行されます。
+4.  生成されたメッセージがLLMに返され、その応答をガイドします。
 
-This allows you to define consistent, reusable templates that LLMs can use across different clients and contexts.
+これにより、LLMがさまざまなClientやコンテキスト全体で使用できる、一貫性のある再利用可能なテンプレートを定義できます。
 
-## Prompts
+## Prompt
 
-### The `@prompt` Decorator
+### `@prompt` Decorator
 
-The most common way to define a prompt is by decorating a Python function. The decorator uses the function name as the prompt's identifier.
+Promptを定義する最も一般的な方法は、Python関数をデコレートすることです。Decoratorは関数名をPromptの識別子として使用します。
 
 ```python
 from fastmcp import FastMCP
@@ -32,108 +32,108 @@ from fastmcp.prompts import Message
 
 mcp = FastMCP(name="PromptServer")
 
-# Basic prompt returning a string (converted to user message automatically)
+# 文字列を返す基本的なPrompt（自動的にユーザーメッセージに変換されます）
 @mcp.prompt
 def ask_about_topic(topic: str) -> str:
-    """Generates a user message asking for an explanation of a topic."""
+    """トピックの説明を求めるユーザーメッセージを生成します。"""
     return f"Can you please explain the concept of '{topic}'?"
 
-# Prompt returning multiple messages
+# 複数のメッセージを返すPrompt
 @mcp.prompt
 def generate_code_request(language: str, task_description: str) -> list[Message]:
-    """Generates a conversation for code generation."""
+    """コード生成のための会話を生成します。"""
     return [
         Message(f"Write a {language} function that performs the following task: {task_description}"),
         Message("I'll help you write that function.", role="assistant"),
     ]
 ```
 
-**Key Concepts:**
+**主要な概念:**
 
-*   **Name:** By default, the prompt name is taken from the function name.
-*   **Parameters:** The function parameters define the inputs needed to generate the prompt.
-*   **Inferred Metadata:** By default:
-    *   Prompt Name: Taken from the function name (`ask_about_topic`).
-    *   Prompt Description: Taken from the function's docstring.
+*   **Name:** デフォルトでは、Prompt名は関数名から取得されます。
+*   **Parameters:** 関数のパラメータは、Promptの生成に必要な入力を定義します。
+*   **Inferred Metadata:** デフォルトの推論されるメタデータ:
+    *   Prompt名: 関数名 (`ask_about_topic`) から取得されます。
+    *   Promptの説明: 関数のdocstringから取得されます。
 <Tip>
-Functions with `*args` or `**kwargs` are not supported as prompts. This restriction exists because FastMCP needs to generate a complete parameter schema for the MCP protocol, which isn't possible with variable argument lists.
+`*args` や `**kwargs` を持つ関数は、Promptとしてサポートされていません。この制限は、FastMCPがMCPプロトコル用の完全なパラメータスキーマを生成する必要があり、可変長引数リストではそれが不可能であるためです。
 </Tip>
 
-#### Decorator Arguments
+#### DecoratorのArgument
 
-While FastMCP infers the name and description from your function, you can override these and add additional metadata using arguments to the `@mcp.prompt` decorator:
+FastMCPは関数から名前と説明を推論しますが、`@mcp.prompt` DecoratorのArgumentを使用してこれらを上書きし、追加のメタデータを付与することができます。
 
 ```python
 @mcp.prompt(
-    name="analyze_data_request",          # Custom prompt name
-    description="Creates a request to analyze data with specific parameters",  # Custom description
-    tags={"analysis", "data"},            # Optional categorization tags
-    meta={"version": "1.1", "author": "data-team"}  # Custom metadata
+    name="analyze_data_request",          # カスタムPrompt名
+    description="Creates a request to analyze data with specific parameters",  # カスタムの説明
+    tags={"analysis", "data"},            # オプションの分類タグ
+    meta={"version": "1.1", "author": "data-team"}  # カスタムメタデータ
 )
 def data_analysis_prompt(
     data_uri: str = Field(description="The URI of the resource containing the data."),
     analysis_type: str = Field(default="summary", description="Type of analysis.")
 ) -> str:
-    """This docstring is ignored when description is provided."""
+    """descriptionが提供されている場合、このdocstringは無視されます。"""
     return f"Please perform a '{analysis_type}' analysis on the data found at {data_uri}."
 ```
 
 <Card icon="code" title="@prompt Decorator Arguments">
 <ParamField body="name" type="str | None">
-  Sets the explicit prompt name exposed via MCP. If not provided, uses the function name
+  MCP経由で公開される明示的なPrompt名を設定します。指定されない場合は関数名が使用されます。
 </ParamField>
 
 <ParamField body="title" type="str | None">
-  A human-readable title for the prompt
+  人間が読みやすいPromptのタイトルです。
 </ParamField>
 
 <ParamField body="description" type="str | None">
-  Provides the description exposed via MCP. If set, the function's docstring is ignored for this purpose
+  MCP経由で公開される説明を提供します。設定された場合、関数のdocstringはこの目的においては無視されます。
 </ParamField>
 
 <ParamField body="tags" type="set[str] | None">
-  A set of strings used to categorize the prompt. These can be used by the server and, in some cases, by clients to filter or group available prompts.
+  Promptを分類するために使用される文字列のセットです。これらはServerによって使用され、場合によってはClientが利用可能なPromptをフィルタリングまたはグループ化するために使用されます。
 </ParamField>
 
 <ParamField body="enabled" type="bool" default="True">
-  <Warning>Deprecated in v3.0.0. Use `mcp.enable()` / `mcp.disable()` at the server level instead.</Warning>
-  A boolean to enable or disable the prompt. See [Component Visibility](#component-visibility) for the recommended approach.
+  <Warning>v3.0.0で非推奨となりました。代わりにServerレベルで `mcp.enable()` / `mcp.disable()` を使用してください。</Warning>
+  Promptを有効または無効にするためのブール値です。推奨されるアプローチについては、[コンポーネントの可視性](#component-visibility)を参照してください。
 </ParamField>
 
 <ParamField body="icons" type="list[Icon] | None">
   <VersionBadge version="2.13.0" />
 
-  Optional list of icon representations for this prompt. See [Icons](/servers/icons) for detailed examples
+  このPromptのアイコン表現のオプションリストです。詳細な例については、[アイコン](/servers/icons)を参照してください。
 </ParamField>
 
 <ParamField body="meta" type="dict[str, Any] | None">
   <VersionBadge version="2.11.0" />
 
-  Optional meta information about the prompt. This data is passed through to the MCP client as the `meta` field of the client-side prompt object and can be used for custom metadata, versioning, or other application-specific purposes.
+  Promptに関するオプションのメタ情報です。このデータは、Client側のPromptオブジェクトの `meta` フィールドとしてMCP Clientに渡され、カスタムメタデータ、バージョニング、またはその他のアプリケーション固有の目的に使用できます。
 </ParamField>
 
 <ParamField body="version" type="str | int | None">
   <VersionBadge version="3.0.0" />
 
-  Optional version identifier for this prompt. See [Versioning](/servers/versioning) for details.
+  このPromptのオプションのバージョン識別子です。詳細は[バージョニング](/servers/versioning)を参照してください。
 </ParamField>
 </Card>
 
-#### Using with Methods
+#### メソッドでの使用
 
-For decorating instance or class methods, use the standalone `@prompt` decorator and register the bound method. See [Tools: Using with Methods](/servers/tools#using-with-methods) for the pattern.
+インスタンスメソッドやクラスメソッドをデコレートする場合は、スタンドアロンの `@prompt` Decoratorを使用し、バインドされたメソッドを登録します。パターンの詳細については、[Tool: メソッドでの使用](/servers/tools#using-with-methods)を参照してください。
 
-### Argument Types
+### Argumentの型
 
 <VersionBadge version="2.9.0" />
 
-The MCP specification requires that all prompt arguments be passed as strings, but FastMCP allows you to use typed annotations for better developer experience. When you use complex types like `list[int]` or `dict[str, str]`, FastMCP:
+MCPの仕様では、すべてのPromptのArgumentを文字列として渡す必要がありますが、FastMCPでは開発者体験を向上させるために型アノテーションを使用できます。`list[int]` や `dict[str, str]` のような複雑な型を使用する場合、FastMCPは以下の処理を行います。
 
-1. **Automatically converts** string arguments from MCP clients to the expected types
-2. **Generates helpful descriptions** showing the exact JSON string format needed
-3. **Preserves direct usage** - you can still call prompts with properly typed arguments
+1. **自動的に変換**: MCP Clientからの文字列のArgumentを、期待される型に自動的に変換します。
+2. **役立つ説明を生成**: 必要な正確なJSON文字列フォーマットを示す説明を生成します。
+3. **直接の呼び出しを維持**: 適切に型付けされたArgumentを使用してPromptを呼び出すことも可能です。
 
-Since the MCP specification only allows string arguments, clients need to know what string format to use for complex types. FastMCP solves this by automatically enhancing the argument descriptions with JSON schema information, making it clear to both humans and LLMs how to format their arguments.
+MCPの仕様では文字列のArgumentのみが許可されているため、Clientは複雑な型に対してどのような文字列フォーマットを使用すべきかを知る必要があります。FastMCPは、Argumentの説明をJSONスキーマ情報で自動的に強化することでこの問題を解決し、人間とLLMの両方にArgumentのフォーマット方法を明確にします。
 
 <CodeGroup>
 
@@ -144,7 +144,7 @@ def analyze_data(
     metadata: dict[str, str], 
     threshold: float
 ) -> str:
-    """Analyze numerical data."""
+    """数値データを分析します。"""
     avg = sum(numbers) / len(numbers)
     return f"Average: {avg}, above threshold: {avg > threshold}"
 ```
@@ -175,7 +175,7 @@ def analyze_data(
 
 </CodeGroup>
 
-**MCP clients will call this prompt with string arguments:**
+**MCP Clientは、文字列のArgumentを使用してこのPromptを呼び出します:**
 ```json
 {
   "numbers": "[1, 2, 3, 4, 5]",
@@ -184,9 +184,9 @@ def analyze_data(
 }
 ```
 
-**But you can still call it directly with proper types:**
+**しかし、適切な型を使用して直接呼び出すことも可能です:**
 ```python
-# This also works for direct calls
+# 直接の呼び出しでも機能します
 result = await prompt.render({
     "numbers": [1, 2, 3, 4, 5],
     "metadata": {"source": "api", "version": "1.0"}, 
@@ -195,26 +195,26 @@ result = await prompt.render({
 ```
 
 <Warning>
-Keep your type annotations simple when using this feature. Complex nested types or custom classes may not convert reliably from JSON strings. The automatically generated schema descriptions are the only guidance users receive about the expected format.
+この機能を使用する際は、型アノテーションをシンプルに保ってください。複雑なネストされた型やカスタムクラスは、JSON文字列から確実に変換されない場合があります。自動生成されるスキーマの説明は、期待されるフォーマットについてユーザーが受け取る唯一のガイダンスです。
 
-Good choices: `list[int]`, `dict[str, str]`, `float`, `bool`
-Avoid: Complex Pydantic models, deeply nested structures, custom classes
+良い選択: `list[int]`, `dict[str, str]`, `float`, `bool`
+避けるべきもの: 複雑なPydanticモデル、深くネストされた構造、カスタムクラス
 </Warning>
 
-### Return Values
+### 戻り値
 
-Prompt functions must return one of these types:
+Prompt関数は、以下のいずれかのReturn typeを返す必要があります。
 
--   **`str`**: Sent as a single user message.
--   **`list[Message | str]`**: A sequence of messages (a conversation). Strings are auto-converted to user Messages.
--   **`PromptResult`**: Full control over messages, description, and metadata. See [PromptResult](#promptresult) below.
+-   **`str`**: 単一のユーザーメッセージとして送信されます。
+-   **`list[Message | str]`**: メッセージのシーケンス（会話）。文字列は自動的にユーザーのMessageに変換されます。
+-   **`PromptResult`**: メッセージ、説明、メタデータを完全に制御します。以下の[PromptResult](#promptresult)を参照してください。
 
 ```python
 from fastmcp.prompts import Message
 
 @mcp.prompt
 def roleplay_scenario(character: str, situation: str) -> list[Message]:
-    """Sets up a roleplaying scenario with initial messages."""
+    """初期メッセージを含むロールプレイのシナリオを設定します。"""
     return [
         Message(f"Let's roleplay. You are {character}. The situation is: {situation}"),
         Message("Okay, I understand. I am ready. What happens next?", role="assistant")
@@ -225,34 +225,34 @@ def roleplay_scenario(character: str, situation: str) -> list[Message]:
 
 <VersionBadge version="3.0.0" />
 
-`Message` provides a user-friendly wrapper for prompt messages with automatic serialization.
+`Message` は、自動シリアライズ機能を備えた、ユーザーフレンドリーなPromptメッセージのラッパーを提供します。
 
 ```python
 from fastmcp.prompts import Message
 
-# String content (user role by default)
+# 文字列コンテンツ（デフォルトでuserロール）
 Message("Hello, world!")
 
-# Explicit role
+# 明示的なロール
 Message("I can help with that.", role="assistant")
 
-# Auto-serialized to JSON text
+# JSONテキストに自動シリアライズ
 Message({"key": "value"})
 Message(["item1", "item2"])
 ```
 
-`Message` accepts two fields:
+`Message` は2つのフィールドを受け入れます。
 
-**`content`** - The message content. Strings pass through directly. Other types (dict, list, BaseModel) are automatically JSON-serialized to text.
+**`content`** - メッセージのコンテンツ。文字列はそのまま渡されます。他の型（dict、list、BaseModel）は自動的にJSONテキストにシリアライズされます。
 
-**`role`** - The message role, either `"user"` (default) or `"assistant"`.
+**`role`** - メッセージのロール。`"user"`（デフォルト）または `"assistant"` のいずれかです。
 
 <Card title="Message">
 <ParamField body="content" type="Any" required>
-  The content data. Strings pass through directly. Other types (dict, list, BaseModel) are automatically JSON-serialized.
+  コンテンツデータ。文字列はそのまま渡されます。他の型（dict、list、BaseModel）は自動的にJSONシリアライズされます。
 </ParamField>
 <ParamField body="role" type="Literal['user', 'assistant']" default="user">
-  The message role.
+  メッセージのロール。
 </ParamField>
 </Card>
 
@@ -260,7 +260,7 @@ Message(["item1", "item2"])
 
 <VersionBadge version="3.0.0" />
 
-`PromptResult` gives you explicit control over prompt responses: multiple messages, roles, and metadata at both the message and result level.
+`PromptResult` を使用すると、複数のメッセージ、ロール、およびメッセージレベルと結果レベルの両方のメタデータなど、Promptの応答を明示的に制御できます。
 
 ```python
 from fastmcp import FastMCP
@@ -270,7 +270,7 @@ mcp = FastMCP(name="PromptServer")
 
 @mcp.prompt
 def code_review(code: str) -> PromptResult:
-    """Returns a code review prompt with metadata."""
+    """メタデータを含むコードレビューのPromptを返します。"""
     return PromptResult(
         messages=[
             Message(f"Please review this code:\n\n```\n{code}\n```"),
@@ -281,55 +281,55 @@ def code_review(code: str) -> PromptResult:
     )
 ```
 
-For simple cases, you can pass a string directly to `PromptResult`:
+単純なケースでは、文字列を直接 `PromptResult` に渡すことができます。
 
 ```python
-return PromptResult("Please help me with this task")  # auto-converts to single Message
+return PromptResult("Please help me with this task")  # 単一のMessageに自動変換されます
 ```
 
 <Card title="PromptResult">
 <ParamField body="messages" type="str | list[Message]" required>
-  Messages to return. Strings are wrapped as a single user Message.
+  返すメッセージ。文字列は単一のユーザーMessageとしてラップされます。
 </ParamField>
 <ParamField body="description" type="str | None">
-  Optional description of the prompt result. If not provided, defaults to the prompt's docstring.
+  Prompt結果のオプションの説明。提供されない場合、デフォルトでPromptのdocstringになります。
 </ParamField>
 <ParamField body="meta" type="dict[str, Any] | None">
-  Result-level metadata, included in the MCP response's `_meta` field. Use this for runtime metadata like categorization, priority, or other client-specific data.
+  結果レベルのメタデータで、MCP応答の `_meta` フィールドに含まれます。これを、分類、優先度、またはその他のClient固有のデータなどのランタイムメタデータに使用します。
 </ParamField>
 </Card>
 
 <Note>
-The `meta` field in `PromptResult` is for runtime metadata specific to this render response. This is separate from the `meta` parameter in `@mcp.prompt(meta={...})`, which provides static metadata about the prompt definition itself (returned when listing prompts).
+`PromptResult` の `meta` フィールドは、このレンダリング応答に固有のランタイムメタデータ用です。これは、Prompt定義自体に関する静的なメタデータ（Promptのリスト取得時に返される）を提供する `@mcp.prompt(meta={...})` の `meta` パラメータとは異なります。
 </Note>
 
-You can still return plain `str` or `list[Message | str]` from your prompt functions—`PromptResult` is opt-in for when you need to include metadata.
+Prompt関数からプレーンな `str` や `list[Message | str]` を返すことも引き続き可能です。`PromptResult` は、メタデータを含める必要がある場合のオプトイン機能です。
 
-### Required vs. Optional Parameters
+### 必須パラメータとオプションパラメータ
 
-Parameters in your function signature are considered **required** unless they have a default value.
+関数のシグネチャ内のパラメータは、デフォルト値を持たない限り**必須**と見なされます。
 
 ```python
 @mcp.prompt
 def data_analysis_prompt(
-    data_uri: str,                        # Required - no default value
-    analysis_type: str = "summary",       # Optional - has default value
-    include_charts: bool = False          # Optional - has default value
+    data_uri: str,                        # 必須 - デフォルト値なし
+    analysis_type: str = "summary",       # オプション - デフォルト値あり
+    include_charts: bool = False          # オプション - デフォルト値あり
 ) -> str:
-    """Creates a request to analyze data with specific parameters."""
+    """特定のパラメータを使用してデータを分析するリクエストを作成します。"""
     prompt = f"Please perform a '{analysis_type}' analysis on the data found at {data_uri}."
     if include_charts:
         prompt += " Include relevant charts and visualizations."
     return prompt
 ```
 
-In this example, the client *must* provide `data_uri`. If `analysis_type` or `include_charts` are omitted, their default values will be used.
+この例では、Clientは `data_uri` を提供する*必要があります*。`analysis_type` または `include_charts` が省略された場合、それらのデフォルト値が使用されます。
 
-### Component Visibility
+### コンポーネントの可視性
 
 <VersionBadge version="3.0.0" />
 
-You can control which prompts are enabled for clients using server-level enabled control. Disabled prompts don't appear in `list_prompts` and can't be called.
+Serverレベルの有効化制御を使用して、Clientに対してどのPromptを有効にするかを制御できます。無効化されたPromptは `list_prompts` に表示されず、呼び出すこともできません。
 
 ```python
 from fastmcp import FastMCP
@@ -344,47 +344,47 @@ def public_prompt(topic: str) -> str:
 def internal_prompt() -> str:
     return "Internal system prompt"
 
-# Disable specific prompts by key
+# キーによって特定のPromptを無効化
 mcp.disable(keys={"prompt:internal_prompt"})
 
-# Disable prompts by tag
+# タグによってPromptを無効化
 mcp.disable(tags={"internal"})
 
-# Or use allowlist mode - only enable prompts with specific tags
+# または許可リストモードを使用 - 特定のタグを持つPromptのみを有効化
 mcp.enable(tags={"public"}, only=True)
 ```
 
-See [Visibility](/servers/visibility) for the complete visibility control API including key formats, tag-based filtering, and provider-level control.
+キーのフォーマット、タグベースのフィルタリング、プロバイダーレベルの制御を含む完全な可視性制御APIについては、[可視性](/servers/visibility)を参照してください。
 
-### Async Prompts
+### 非同期Prompt
 
-FastMCP supports both standard (`def`) and asynchronous (`async def`) functions as prompts. Synchronous functions automatically run in a threadpool to avoid blocking the event loop.
+FastMCPは、標準の関数（`def`）と非同期関数（`async def`）の両方をPromptとしてサポートしています。同期関数は、イベントループのブロックを避けるために自動的にスレッドプールで実行されます。
 
 ```python
-# Synchronous prompt (runs in threadpool)
+# 同期Prompt（スレッドプールで実行）
 @mcp.prompt
 def simple_question(question: str) -> str:
-    """Generates a simple question to ask the LLM."""
+    """LLMに尋ねる簡単な質問を生成します。"""
     return f"Question: {question}"
 
-# Asynchronous prompt
+# 非同期Prompt
 @mcp.prompt
 async def data_based_prompt(data_id: str) -> str:
-    """Generates a prompt based on data that needs to be fetched."""
-    # In a real scenario, you might fetch data from a database or API
+    """取得する必要があるデータに基づいてPromptを生成します。"""
+    # 実際のシナリオでは、データベースやAPIからデータを取得する場合があります
     async with aiohttp.ClientSession() as session:
         async with session.get(f"https://api.example.com/data/{data_id}") as response:
             data = await response.json()
             return f"Analyze this data: {data['content']}"
 ```
 
-Use `async def` when your prompt function performs I/O operations like network requests or database queries, since async is more efficient than threadpool dispatch.
+Prompt関数がネットワークリクエストやデータベースクエリなどのI/O操作を実行する場合は、非同期の方がスレッドプールのディスパッチよりも効率的であるため、`async def` を使用してください。
 
-### Accessing MCP Context
+### MCP Contextへのアクセス
 
 <VersionBadge version="2.2.5" />
 
-Prompts can access additional MCP information and features through the `Context` object. To access it, add a parameter to your prompt function with a type annotation of `Context`:
+Promptは、`Context` オブジェクトを通じて追加のMCP情報や機能にアクセスできます。アクセスするには、Prompt関数に `Context` の型アノテーションを持つパラメータを追加します。
 
 ```python {6}
 from fastmcp import FastMCP, Context
@@ -393,67 +393,67 @@ mcp = FastMCP(name="PromptServer")
 
 @mcp.prompt
 async def generate_report_request(report_type: str, ctx: Context) -> str:
-    """Generates a request for a report."""
+    """レポートのリクエストを生成します。"""
     return f"Please create a {report_type} report. Request ID: {ctx.request_id}"
 ```
 
-For full documentation on the Context object and all its capabilities, see the [Context documentation](/servers/context).
+Contextオブジェクトとそのすべての機能的の完全なドキュメントについては、[Contextのドキュメント](/servers/context)を参照してください。
 
-### Notifications
+### 通知
 
 <VersionBadge version="2.9.1" />
 
-FastMCP automatically sends `notifications/prompts/list_changed` notifications to connected clients when prompts are added, enabled, or disabled. This allows clients to stay up-to-date with the current prompt set without manually polling for changes.
+FastMCPは、Promptが追加、有効化、または無効化されたときに、接続されているClientに `notifications/prompts/list_changed` 通知を自動的に送信します。これにより、Clientは変更を手動でポーリングすることなく、現在のPromptセットを最新の状態に保つことができます。
 
 ```python
 @mcp.prompt
 def example_prompt() -> str:
     return "Hello!"
 
-# These operations trigger notifications:
-mcp.add_prompt(example_prompt)               # Sends prompts/list_changed notification
-mcp.disable(keys={"prompt:example_prompt"})  # Sends prompts/list_changed notification
-mcp.enable(keys={"prompt:example_prompt"})   # Sends prompts/list_changed notification
+# これらの操作は通知をトリガーします:
+mcp.add_prompt(example_prompt)               # prompts/list_changed 通知を送信
+mcp.disable(keys={"prompt:example_prompt"})  # prompts/list_changed 通知を送信
+mcp.enable(keys={"prompt:example_prompt"})   # prompts/list_changed 通知を送信
 ```
 
-Notifications are only sent when these operations occur within an active MCP request context (e.g., when called from within a tool or other MCP operation). Operations performed during server initialization do not trigger notifications.
+通知は、これらの操作がアクティブなMCPリクエストコンテキスト内で発生した場合（例: Toolやその他のMCP操作内から呼び出された場合）にのみ送信されます。Serverの初期化中に実行された操作は通知をトリガーしません。
 
-Clients can handle these notifications using a [message handler](/clients/notifications) to automatically refresh their prompt lists or update their interfaces.
+Clientは、[メッセージハンドラー](/clients/notifications)を使用してこれらの通知を処理し、Promptリストを自動的に更新したり、インターフェースを更新したりできます。
 
-## Server Behavior
+## Serverの動作
 
-### Duplicate Prompts
+### 重複するPrompt
 
 <VersionBadge version="2.1.0" />
 
-You can configure how the FastMCP server handles attempts to register multiple prompts with the same name. Use the `on_duplicate_prompts` setting during `FastMCP` initialization.
+同じ名前で複数のPromptを登録しようとした場合のFastMCP Serverの処理方法を設定できます。`FastMCP` の初期化時に `on_duplicate_prompts` 設定を使用します。
 
 ```python
 from fastmcp import FastMCP
 
 mcp = FastMCP(
     name="PromptServer",
-    on_duplicate_prompts="error"  # Raise an error if a prompt name is duplicated
+    on_duplicate_prompts="error"  # Prompt名が重複している場合はエラーを発生させます
 )
 
 @mcp.prompt
 def greeting(): return "Hello, how can I help you today?"
 
-# This registration attempt will raise a ValueError because
-# "greeting" is already registered and the behavior is "error".
+# "greeting" はすでに登録されており、動作が "error" に設定されているため、
+# この登録試行は ValueError を発生させます。
 # @mcp.prompt
 # def greeting(): return "Hi there! What can I do for you?"
 ```
 
-The duplicate behavior options are:
+重複時の動作オプションは以下の通りです。
 
--   `"warn"` (default): Logs a warning, and the new prompt replaces the old one.
--   `"error"`: Raises a `ValueError`, preventing the duplicate registration.
--   `"replace"`: Silently replaces the existing prompt with the new one.
--   `"ignore"`: Keeps the original prompt and ignores the new registration attempt.
+-   `"warn"` (デフォルト): 警告をログに記録し、新しいPromptが古いPromptを置き換えます。
+-   `"error"`: `ValueError` を発生させ、重複登録を防ぎます。
+-   `"replace"`: 既存のPromptを新しいPromptに静かに置き換えます。
+-   `"ignore"`: 元のPromptを保持し、新しい登録試行を無視します。
 
-## Versioning
+## バージョニング
 
 <VersionBadge version="3.0.0" />
 
-Prompts support versioning, allowing you to maintain multiple implementations under the same name while clients automatically receive the highest version. See [Versioning](/servers/versioning) for complete documentation on version comparison, retrieval, and migration patterns.
+Promptはバージョニングをサポートしており、同じ名前で複数の実装を維持しながら、Clientが自動的に最も高いバージョンを受け取るようにすることができます。バージョンの比較、取得、および移行パターンの完全なドキュメントについては、[バージョニング](/servers/versioning)を参照してください。

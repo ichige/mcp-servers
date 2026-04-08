@@ -28,6 +28,15 @@ class UrlInputEvent(Event):
     """
     action_name: Annotated[ActionNameEnum, "アクション(ボタン)名"]
     url: Annotated[str, "翻訳対象となるドキュメントのURL"]
+    prompt: Annotated[str, "URL検証用プロンプト名"] = "url_validator_prompt"
+
+    def arguments(self) -> dict[str, str]:
+        """
+        エージェント実行引数
+        """
+        return {
+            "url": self.url
+        }
 
 class InspectionEvent(Event):
     """
@@ -49,6 +58,15 @@ class TranslationEvent(Event):
     翻訳実行フェーズのイベント
     """
     path: Annotated[str, "翻訳対象となるドキュメントのPATH"]
+    prompt: Annotated[str, "翻訳実行用"] = "file_translation_prompt"
+
+    def arguments(self) -> dict[str, str]:
+        """
+        エージェント実行引数
+        """
+        return {
+            "path": self.path
+        }
 
 class SaveEvent(Event):
     """

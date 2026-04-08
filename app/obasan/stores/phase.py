@@ -22,7 +22,7 @@ class Phase(BaseModel):
     """
     翻訳処理のフェーズを管理するモデル
     """
-    state: PhaseEnum = Field(description="現在の状態を示す文字列", default="standby")
+    state: PhaseEnum = Field(description="現在の状態を示す文字列", default=PhaseEnum.STANDBY)
 
     def update(self, state: PhaseEnum) -> None:
         """
@@ -70,7 +70,7 @@ class Phase(BaseModel):
         """
         現在のステートをメッセージで返す
         """
-        return f"Phase: {self.state}"
+        return f"Phase: {self.state.value}"
 
     @property
     def view_content_card(self) -> bool:

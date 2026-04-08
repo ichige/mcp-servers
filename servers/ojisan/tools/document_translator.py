@@ -22,7 +22,7 @@ def register_document_translator_tool(mcp: FastMCP):
     @mcp.tool(
         name="DocumentTranslator",
         tags={"documentation"},
-        timeout=360.0,
+        timeout=600.0,
         version="1.0.0"
     )
     async def file_inspector(
@@ -63,6 +63,9 @@ def register_document_translator_tool(mcp: FastMCP):
 
 ### 4. 特殊記法の維持
 - `:::tip` や `:::info` などのアドモニション（注釈）記法、および Markdown のリンク形式 `[text](url)` の URL 部分は変更しないでください。
+
+### 5. 禁止事項
+- 翻訳結果全体を ```mdx や ``` などのコードブロックで囲わないでください。
         """
 
         text = await DocsHelper.read_docs(original_path)
@@ -80,7 +83,7 @@ def register_document_translator_tool(mcp: FastMCP):
                 model_preferences=[os.environ.get("MODEL_PREFERENCE", "gemini-3.1-flash-lite-preview")],
                 system_prompt=system_prompt,
                 temperature=0.1,
-                max_tokens=16384,
+                max_tokens=100000,
             )
 
             return TranslationResponse(success=True, message="OK", translated_text=str(result.text))
