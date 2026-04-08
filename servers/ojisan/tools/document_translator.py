@@ -63,6 +63,9 @@ def register_document_translator_tool(mcp: FastMCP):
 
 ### 4. 特殊記法の維持
 - `:::tip` や `:::info` などのアドモニション（注釈）記法、および Markdown のリンク形式 `[text](url)` の URL 部分は変更しないでください。
+
+### 5. 禁止事項
+- 翻訳結果全体を ```mdx や ``` などのコードブロックで囲わないでください。
         """
 
         text = await DocsHelper.read_docs(original_path)

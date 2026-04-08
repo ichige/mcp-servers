@@ -1,7 +1,7 @@
 ---
-title: Background Tasks
-sidebarTitle: Background Tasks
-description: Run long-running operations asynchronously with progress tracking
+title: バックグラウンドタスク
+sidebarTitle: バックグラウンドタスク
+description: 進捗トラッキングを備えた、時間のかかる非同期処理の実行
 icon: clock
 tag: "NEW"
 ---
@@ -11,42 +11,42 @@ import { VersionBadge } from "/snippets/version-badge.mdx"
 <VersionBadge version="2.14.0" />
 
 <Tip>
-Background tasks require the `tasks` optional extra. See [installation instructions](#enabling-background-tasks) below.
+バックグラウンドタスクには、オプションの `tasks` extra が必要です。以下の[インストール手順](#enabling-background-tasks)を参照してください。
 </Tip>
 
-FastMCP implements the MCP background task protocol ([SEP-1686](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks)), giving your servers a production-ready distributed task scheduler with a single decorator change.
+FastMCP は MCP バックグラウンドタスクプロトコル ([SEP-1686](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks)) を実装しており、Decorator を1つ変更するだけで、本番環境に対応した分散タスクスケジューラを Server に提供します。
 
 <Tip>
-**What is Docket?** FastMCP's task system is powered by [Docket](https://github.com/chrisguidry/docket), originally built by [Prefect](https://prefect.io) to power [Prefect Cloud](https://www.prefect.io/prefect/cloud)'s managed task scheduling and execution service, where it processes millions of concurrent tasks every day. Docket is now open-sourced for the community.
+**Docket とは？** FastMCP のタスクシステムは [Docket](https://github.com/chrisguidry/docket) を基盤としています。Docket は元々、[Prefect](https://prefect.io) が [Prefect Cloud](https://www.prefect.io/prefect/cloud) のマネージドタスクスケジューリングおよび実行サービスを動かすために構築したもので、毎日数百万の同時タスクを処理しています。現在、Docket はコミュニティ向けにオープンソース化されています。
 </Tip>
 
 
-## What Are MCP Background Tasks?
+## MCP バックグラウンドタスクとは？
 
-In MCP, all component interactions are blocking by default. When a client calls a tool, reads a resource, or fetches a prompt, it sends a request and waits for the response. For operations that take seconds or minutes, this creates a poor user experience.
+MCP では、すべてのコンポーネントのインタラクションはデフォルトでブロッキングです。Client が Tool を呼び出したり、Resource を読み取ったり、Prompt を取得したりする際、リクエストを送信してレスポンスを待ちます。数秒から数分かかる操作の場合、これはユーザー体験の低下を招きます。
 
-The MCP background task protocol solves this by letting clients:
-1. **Start** an operation and receive a task ID immediately
-2. **Track** progress as the operation runs
-3. **Retrieve** the result when ready
+MCP バックグラウンドタスクプロトコルは、Client に以下の機能を提供することでこの問題を解決します。
+1. 操作を**開始**し、即座にタスク ID を受け取る
+2. 操作の実行中に進捗を**追跡**する
+3. 準備ができたら結果を**取得**する
 
-FastMCP handles all of this for you. Add `task=True` to your decorator, and your function gains full background execution with progress reporting, distributed processing, and horizontal scaling.
+FastMCP はこれらすべてを自動的に処理します。Decorator に `task=True` を追加するだけで、関数は進捗報告、分散処理、水平スケーリングを備えた完全なバックグラウンド実行が可能になります。
 
-### MCP Background Tasks vs Python Concurrency
+### MCP バックグラウンドタスクと Python の並行処理の比較
 
-You can always use Python's concurrency primitives (asyncio, threads, multiprocessing) or external task queues in your FastMCP servers. FastMCP is just Python—run code however you like.
+FastMCP の Server では、Python の並行処理プリミティブ（asyncio、スレッド、マルチプロセッシング）や外部のタスクキューをいつでも使用できます。FastMCP は単なる Python ですので、好きなようにコードを実行してください。
 
-MCP background tasks are different: they're **protocol-native**. This means MCP clients that support the task protocol can start operations, receive progress updates, and retrieve results through the standard MCP interface. The coordination happens at the protocol level, not inside your application code.
+MCP バックグラウンドタスクは異なります。これらは**プロトコルネイティブ**です。つまり、タスクプロトコルをサポートする MCP Client は、標準の MCP インターフェースを通じて操作を開始し、進捗の更新を受け取り、結果を取得できます。この調整はアプリケーションコード内ではなく、プロトコルレベルで行われます。
 
-## Enabling Background Tasks
+## バックグラウンドタスクの有効化
 
-<VersionBadge version="3.0.0" /> Background tasks require the `tasks` extra:
+<VersionBadge version="3.0.0" /> バックグラウンドタスクには `tasks` extra が必要です。
 
 ```bash
 pip install "fastmcp[tasks]"
 ```
 
-Add `task=True` to any tool, resource, resource template, or prompt decorator. This marks the component as capable of background execution.
+任意の Tool、Resource、リソーステンプレート、または Prompt の Decorator に `task=True` を追加します。これにより、そのコンポーネントがバックグラウンド実行可能としてマークされます。
 
 ```python {6}
 import asyncio
@@ -56,27 +56,27 @@ mcp = FastMCP("MyServer")
 
 @mcp.tool(task=True)
 async def slow_computation(duration: int) -> str:
-    """A long-running operation."""
+    """時間のかかる操作。"""
     for i in range(duration):
         await asyncio.sleep(1)
     return f"Completed in {duration} seconds"
 ```
 
-When a client requests background execution, the call returns immediately with a task ID. The work executes in a background worker, and the client can poll for status or wait for the result.
+Client がバックグラウンド実行をリクエストすると、呼び出しは即座にタスク ID を返します。処理はバックグラウンドワーカーで実行され、Client はステータスをポーリングするか、結果を待つことができます。
 
 <Warning>
-Background tasks require async functions. Attempting to use `task=True` with a sync function raises a `ValueError` at registration time.
+バックグラウンドタスクには非同期関数が必要です。同期関数で `task=True` を使用しようとすると、登録時に `ValueError` が発生します。
 </Warning>
 
-## Execution Modes
+## 実行モード
 
-For fine-grained control over task execution behavior, use `TaskConfig` instead of the boolean shorthand. The MCP task protocol defines three execution modes:
+タスクの実行動作をきめ細かく制御するには、真偽値の省略記法ではなく `TaskConfig` を使用します。MCP タスクプロトコルでは、3つの実行モードが定義されています。
 
 | Mode | Client calls without task | Client calls with task |
 |------|--------------------------|------------------------|
-| `"forbidden"` | Executes synchronously | Error: task not supported |
-| `"optional"` | Executes synchronously | Executes as background task |
-| `"required"` | Error: task required | Executes as background task |
+| `"forbidden"` | 同期的に実行される | エラー: タスクはサポートされていません |
+| `"optional"` | 同期的に実行される | バックグラウンドタスクとして実行される |
+| `"required"` | エラー: タスクが必要です | バックグラウンドタスクとして実行される |
 
 ```python
 from fastmcp import FastMCP
@@ -84,31 +84,31 @@ from fastmcp.server.tasks import TaskConfig
 
 mcp = FastMCP("MyServer")
 
-# Supports both sync and background execution (default when task=True)
+# 同期実行とバックグラウンド実行の両方をサポート (task=True の場合のデフォルト)
 @mcp.tool(task=TaskConfig(mode="optional"))
 async def flexible_task() -> str:
     return "Works either way"
 
-# Requires background execution - errors if client doesn't request task
+# バックグラウンド実行が必須 - Client がタスクをリクエストしない場合はエラー
 @mcp.tool(task=TaskConfig(mode="required"))
 async def must_be_background() -> str:
     return "Only runs as a background task"
 
-# No task support (default when task=False or omitted)
+# タスクのサポートなし (task=False または省略時のデフォルト)
 @mcp.tool(task=TaskConfig(mode="forbidden"))
 async def sync_only() -> str:
     return "Never runs as background task"
 ```
 
-The boolean shortcuts map to these modes:
+真偽値のショートカットは以下のモードにマッピングされます。
 - `task=True` → `TaskConfig(mode="optional")`
 - `task=False` → `TaskConfig(mode="forbidden")`
 
-### Poll Interval
+### ポーリング間隔
 
 <VersionBadge version="2.15.0" />
 
-When clients poll for task status, the server tells them how frequently to check back. By default, FastMCP suggests a 5-second interval, but you can customize this per component:
+Client がタスクのステータスをポーリングする際、Server は再確認の頻度を Client に伝えます。デフォルトでは、FastMCP は5秒間隔を提案しますが、コンポーネントごとにカスタマイズできます。
 
 ```python
 from datetime import timedelta
@@ -117,80 +117,80 @@ from fastmcp.server.tasks import TaskConfig
 
 mcp = FastMCP("MyServer")
 
-# Poll every 2 seconds for a fast-completing task
+# すぐに完了するタスクのために2秒ごとにポーリング
 @mcp.tool(task=TaskConfig(mode="optional", poll_interval=timedelta(seconds=2)))
 async def quick_task() -> str:
     return "Done quickly"
 
-# Poll every 30 seconds for a long-running task
+# 時間のかかるタスクのために30秒ごとにポーリング
 @mcp.tool(task=TaskConfig(mode="optional", poll_interval=timedelta(seconds=30)))
 async def slow_task() -> str:
     return "Eventually done"
 ```
 
-Shorter intervals give clients faster feedback but increase server load. Longer intervals reduce load but delay status updates.
+間隔を短くすると Client へのフィードバックは早くなりますが、Server の負荷が増加します。間隔を長くすると負荷は減りますが、ステータスの更新が遅れます。
 
-### Server-Wide Default
+### Server 全体のデフォルト
 
-To enable background task support for all components by default, pass `tasks=True` to the constructor. Individual decorators can still override this with `task=False`.
+デフォルトですべてのコンポーネントのバックグラウンドタスクサポートを有効にするには、コンストラクタに `tasks=True` を渡します。個別の Decorator で `task=False` を指定して上書きすることも可能です。
 
 ```python
 mcp = FastMCP("MyServer", tasks=True)
 ```
 
 <Warning>
-If your server defines any synchronous tools, resources, or prompts, you will need to explicitly set `task=False` on their decorators to avoid an error.
+Server に同期的な Tool、Resource、または Prompt が定義されている場合、エラーを避けるためにそれらの Decorator で明示的に `task=False` を設定する必要があります。
 </Warning>
 
-### Graceful Degradation
+### グレースフルデグラデーション
 
-When a client requests background execution but the component has `mode="forbidden"`, FastMCP executes synchronously and returns the result inline. This follows the SEP-1686 specification for graceful degradation—clients can always request background execution without worrying about server capabilities.
+Client がバックグラウンド実行をリクエストしたものの、コンポーネントが `mode="forbidden"` に設定されている場合、FastMCP は同期的に実行し、結果をインラインで返します。これはグレースフルデグラデーションに関する SEP-1686 仕様に従っており、Client は Server の機能を気にすることなく、常にバックグラウンド実行をリクエストできます。
 
-Conversely, when a component has `mode="required"` but the client doesn't request background execution, FastMCP returns an error indicating that task execution is required.
+逆に、コンポーネントが `mode="required"` に設定されているのに Client がバックグラウンド実行をリクエストしない場合、FastMCP はタスクの実行が必要であることを示すエラーを返します。
 
-### Configuration
+### 設定
 
 | Environment Variable | Default | Description |
 |---------------------|---------|-------------|
-| `FASTMCP_DOCKET_URL` | `memory://` | Backend URL (`memory://` or `redis://host:port/db`) |
+| `FASTMCP_DOCKET_URL` | `memory://` | バックエンドの URL (`memory://` または `redis://host:port/db`) |
 
-## Backends
+## バックエンド
 
-FastMCP supports two backends for task execution, each with different tradeoffs.
+FastMCP はタスク実行用に2つのバックエンドをサポートしており、それぞれに異なるトレードオフがあります。
 
-### In-Memory Backend (Default)
+### インメモリバックエンド (デフォルト)
 
-The in-memory backend (`memory://`) requires zero configuration and works out of the box.
+インメモリバックエンド (`memory://`) は設定不要で、すぐに使用できます。
 
-**Advantages:**
-- No external dependencies
-- Simple single-process deployment
+**利点:**
+- 外部依存関係がない
+- シンプルな単一プロセスでのデプロイ
 
-**Disadvantages:**
-- **Ephemeral**: If the server restarts, all pending tasks are lost
-- **Higher latency**: ~250ms task pickup time vs single-digit milliseconds with Redis
-- **No horizontal scaling**: Single process only—you cannot add additional workers
+**欠点:**
+- **一時的**: Server が再起動すると、保留中のタスクはすべて失われます
+- **レイテンシが高い**: タスクのピックアップ時間が約250ミリ秒（Redis の場合は1桁ミリ秒）
+- **水平スケーリング不可**: 単一プロセスのみであり、ワーカーを追加することはできません
 
-### Redis Backend
+### Redis バックエンド
 
-For production deployments, use Redis (or Valkey) as your backend by setting `FASTMCP_DOCKET_URL=redis://localhost:6379`.
+本番環境のデプロイでは、`FASTMCP_DOCKET_URL=redis://localhost:6379` を設定して Redis (または Valkey) をバックエンドとして使用します。
 
-**Advantages:**
-- **Persistent**: Tasks survive server restarts
-- **Fast**: Single-digit millisecond task pickup latency
-- **Scalable**: Add workers to distribute load across processes or machines
+**利点:**
+- **永続的**: Server が再起動してもタスクは保持されます
+- **高速**: タスクのピックアップレイテンシが1桁ミリ秒
+- **スケーラブル**: ワーカーを追加して、プロセスやマシン間で負荷を分散できます
 
-## Workers
+## ワーカー
 
-Every FastMCP server with task-enabled components automatically starts an **embedded worker**. You do not need to start a separate worker process for tasks to execute.
+タスクが有効なコンポーネントを持つすべての FastMCP Server は、自動的に**組み込みワーカー**を起動します。タスクを実行するために別のワーカープロセスを起動する必要はありません。
 
-To scale horizontally, add more workers using the CLI:
+水平スケーリングを行うには、CLI を使用してワーカーを追加します。
 
 ```bash
 fastmcp tasks worker server.py
 ```
 
-Each additional worker pulls tasks from the same queue, distributing load across processes. Configure worker concurrency via environment:
+追加された各ワーカーは同じキューからタスクを取得し、プロセス間で負荷を分散します。ワーカーの並行処理数は環境変数で設定します。
 
 ```bash
 export FASTMCP_DOCKET_CONCURRENCY=20
@@ -198,16 +198,16 @@ fastmcp tasks worker server.py
 ```
 
 <Note>
-Additional workers only work with Redis/Valkey backends. The in-memory backend is single-process only.
+追加のワーカーは Redis/Valkey バックエンドでのみ機能します。インメモリバックエンドは単一プロセス専用です。
 </Note>
 
 <Warning>
-Task-enabled components must be defined at server startup to be registered with all workers. Components added dynamically after the server starts will not be available for background execution.
+タスクが有効なコンポーネントは、すべてのワーカーに登録されるように Server の起動時に定義されている必要があります。Server 起動後に動的に追加されたコンポーネントは、バックグラウンド実行に利用できません。
 </Warning>
 
-## Progress Reporting
+## 進捗報告
 
-The `Progress` dependency lets you report progress back to clients. Inject it as a parameter with a default value, and FastMCP will provide the active progress reporter.
+`Progress` 依存関係を使用すると、Client に進捗を報告できます。デフォルト値を持つパラメータとして注入すると、FastMCP はアクティブな進捗レポーターを提供します。
 
 ```python
 from fastmcp import FastMCP
@@ -221,22 +221,22 @@ async def process_files(files: list[str], progress: Progress = Progress()) -> st
 
     for file in files:
         await progress.set_message(f"Processing {file}")
-        # ... do work ...
+        # ... 処理を実行 ...
         await progress.increment()
 
     return f"Processed {len(files)} files"
 ```
 
-The progress API:
-- `await progress.set_total(n)` — Set the total number of steps
-- `await progress.increment(amount=1)` — Increment progress
-- `await progress.set_message(text)` — Update the status message
+進捗 API:
+- `await progress.set_total(n)` — ステップの総数を設定します
+- `await progress.increment(amount=1)` — 進捗をインクリメントします
+- `await progress.set_message(text)` — ステータスメッセージを更新します
 
-Progress works in both immediate and background execution modes—you can use the same code regardless of how the client invokes your function.
+進捗報告は、即時実行モードとバックグラウンド実行モードの両方で機能します。Client が関数をどのように呼び出すかに関係なく、同じコードを使用できます。
 
-## Docket Dependencies
+## Docket の依存関係
 
-FastMCP exposes Docket's full dependency injection system within your task-enabled functions. Beyond `Progress`, you can access the Docket instance, worker information, and use advanced features like retries and timeouts.
+FastMCP は、タスクが有効な関数内で Docket の完全な依存性注入システムを公開します。`Progress` 以外にも、Docket インスタンスやワーカー情報にアクセスしたり、リトライやタイムアウトなどの高度な機能を使用したりできます。
 
 ```python
 from docket import Docket, Worker
@@ -251,13 +251,13 @@ async def my_task(
     docket: Docket = CurrentDocket(),
     worker: Worker = CurrentWorker(),
 ) -> str:
-    # Schedule additional background work
+    # 追加のバックグラウンド処理をスケジュール
     await docket.add(another_task, arg1, arg2)
 
-    # Access worker metadata
+    # ワーカーのメタデータにアクセス
     worker_name = worker.name
 
     return "Done"
 ```
 
-With `CurrentDocket()`, you can schedule additional background tasks, chain work together, and coordinate complex workflows. See the [Docket documentation](https://chrisguidry.github.io/docket/) for the complete API, including retry policies, timeouts, and custom dependencies.
+`CurrentDocket()` を使用すると、追加のバックグラウンドタスクをスケジュールしたり、処理を連鎖させたり、複雑なワークフローを調整したりできます。リトライポリシー、タイムアウト、カスタム依存関係を含む完全な API については、[Docket のドキュメント](https://chrisguidry.github.io/docket/)を参照してください。", "comment": "ご要求のあったFast MCPのタスク関連ドキュメントの翻訳が完了しました。"}
